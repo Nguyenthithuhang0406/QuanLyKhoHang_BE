@@ -6,20 +6,20 @@ const register = {
     staffCode: joi.string()
       .required()
       .messages({
-        'string.base': 'Staff code must be a string',
-        'string.empty': 'Staff code cannot be an empty',
-        'any.required': 'Staff code is required',
+        'string.base': 'staffCode must be a string',
+        'string.empty': 'staffCode cannot be an empty',
+        'any.required': 'staffCode is required',
       }),
     fullName: joi.string()
       .required()
       .min(5)
       .max(30)
       .messages({
-        'string.base': 'Full name must be a string',
-        'string.empty': 'Full name cannot be an empty',
-        'string.min': 'Full name must be at least 5 characters long',
-        'string.max': 'Full name must be at most 30 characters long',
-        'any.required': 'Full name is required',
+        'string.base': 'fullName must be a string',
+        'string.empty': 'fullName cannot be an empty',
+        'string.min': 'fullName must be at least 5 characters long',
+        'string.max': 'fullName must be at most 30 characters long',
+        'any.required': 'fullName is required',
       }),
     email: joi.string()
       .custom((value, helpers) => {
