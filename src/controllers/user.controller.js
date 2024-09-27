@@ -6,7 +6,7 @@ const User = require("@/models/user.model");
 const OTP = require("../models/otp.model");
 const ApiError = require("@/utils/apiError");
 const catchAsync = require("@/utils/catchAsync");
-const { sendEmail } = require("../utils/nodemailer");
+const { sendEmail, sendEmailWhenForgetPassword } = require("../utils/nodemailer");
 
 const register = catchAsync(async (req, res) => {
   const { staffCode, fullName, email, userName, password, role } = req.body;
@@ -165,9 +165,9 @@ const getUserById = catchAsync(async (req, res) => {
 });
 
 const updatePassword = catchAsync(async (req, res) => {
-  const {userId, email, newPassword } = req.body;
+  const {userName, email, newPassword } = req.body;
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({ userName });
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
@@ -179,7 +179,7 @@ const updatePassword = catchAsync(async (req, res) => {
 
   const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
-  await User.findByIdAndUpdate(userId, { password: hashedPassword });
+  await User.findByIdAndUpdate(user._id, { password: hashedPassword });
 
   return res.status(httpStatus.OK).json({
     message: "Password updated successfully",
@@ -191,11 +191,36 @@ const updatePassword = catchAsync(async (req, res) => {
 
 });
 
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email, userName } = req.body;
+
+  const user = await User.findOne({ userName });
+  
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.email !== email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email is incorrect");
+  }
+
+  await sendEmailWhenForgetPassword(user.email, user.fullName);
+
+  return res.status(httpStatus.OK).json({
+    message: "Email sent successfully",
+    code: httpStatus.OK,
+    data: {
+      user,
+    },
+  });
+});
+
 module.exports = {
   register,
   verifyOTP,
   login,
   getRefreshToken,
   getUserById,
-  updatePassword
+  updatePassword,
+  forgotPassword,
 };

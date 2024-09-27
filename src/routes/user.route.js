@@ -15,4 +15,6 @@ userRouter.post('/login', validate(userValidation.login), userController.login);
 userRouter.post('/refresh-token', validate(userValidation.getRefreshToken), userController.getRefreshToken);
 userRouter.get('/:userId', auth,  validate(userValidation.getUserById), userController.getUserById);
 userRouter.put('/update-password', validate(userValidation.updatePassword), userController.updatePassword);
+userRouter.post('/forgot-password', validate(userValidation.forgotPassword), userController.forgotPassword);
+
 module.exports = userRouter;

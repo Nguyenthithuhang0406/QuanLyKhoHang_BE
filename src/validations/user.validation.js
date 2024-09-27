@@ -153,13 +153,37 @@ const updatePassword = {
         }
         return value;
       }),
-    userId: joi.string()
+    userName: joi.string()
       .required()
-      .custom(ObjectId)
       .messages({
-        'string.base': 'userId must be a string',
-        'string.empty': 'userId cannot be an empty',
-        'any.required': 'userId is required',
+        'string.base': 'Username must be a string',
+        'string.empty': 'Username cannot be an empty',
+        'any.required': 'Username is required',
+      })
+  }),
+};
+
+const forgotPassword = {
+  body: joi.object({
+    email: joi.string()
+      .custom((value, helpers) => {
+        if (!validateEmail(value)) {
+          return helpers.error('any.invalid', { message: 'Email is invalid' });
+        }
+        return value;
+      })
+      .required()
+      .messages({
+        'string.base': 'Email must be a string',
+        'string.empty': 'Email cannot be an empty',
+        'any.required': 'Email is required',
+      }),
+    userName: joi.string()
+      .required()
+      .messages({
+        'string.base': 'Username must be a string',
+        'string.empty': 'Username cannot be an empty',
+        'any.required': 'Username is required',
       }),
   }),
 };
@@ -171,4 +195,5 @@ module.exports = {
   getRefreshToken,
   getUserById,
   updatePassword,
+  forgotPassword,
 };
