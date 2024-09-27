@@ -188,6 +188,61 @@ const forgotPassword = {
   }),
 };
 
+const editProfile = {
+  params: joi.object({
+    userId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'userId must be a string',
+        'string.empty': 'userId cannot be an empty',
+        'any.required': 'userId is required',
+      }),
+  }),
+  body: joi.object({
+    fullName: joi.string()
+      .min(5)
+      .max(30)
+      .optional()
+      .messages({
+        'string.base': 'fullName must be a string',
+        'string.empty': 'fullName cannot be an empty',
+        'string.min': 'fullName must be at least 5 characters long',
+        'string.max': 'fullName must be at most 30 characters long',
+      }),
+    email: joi.string()
+      .custom((value, helpers) => {
+        if (!validateEmail(value)) {
+          return helpers.error('any.invalid', { message: 'Email is invalid' });
+        }
+        return value;
+      })
+      .optional()
+      .messages({
+        'string.base': 'Email must be a string',
+        'string.empty': 'Email cannot be an empty',
+      }),
+    phoneNumber: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'phoneNumber must be a string',
+        'string.empty': 'phoneNumber cannot be an empty',
+      }),
+    address: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'address must be a string',
+        'string.empty': 'address cannot be an empty',
+      }),
+    gender: joi.string()
+      .optional()
+      .messages({
+        'string.base': "gender must be a string",
+        'string.empty': "gender cannot be an empty",
+      })
+  }),
+};
+
 module.exports = {
   register,
   verifyOTP,
@@ -196,4 +251,5 @@ module.exports = {
   getUserById,
   updatePassword,
   forgotPassword,
+  editProfile,
 };

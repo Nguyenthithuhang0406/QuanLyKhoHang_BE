@@ -215,6 +215,36 @@ const forgotPassword = catchAsync(async (req, res) => {
   });
 });
 
+
+const editProfile = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { fullName, email, phoneNumber, address, gender } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  await User.findByIdAndUpdate(userId, {
+    fullName: fullName ? fullName : user.fullName,
+    email: email ? email : user.email,
+    phoneNumber: phoneNumber ? phoneNumber : user.phoneNumber,
+    address: address ? address : user.address,
+    gender: gender ? gender : user.gender
+  });
+
+  const updatedUser = await User.findById(userId);
+
+  return res.status(httpStatus.OK).json({
+    message: "User updated successfully",
+    code: httpStatus.OK,
+    data: {
+      user: updatedUser,
+    },
+  });
+});
+
 module.exports = {
   register,
   verifyOTP,
@@ -223,4 +253,5 @@ module.exports = {
   getUserById,
   updatePassword,
   forgotPassword,
+  editProfile,
 };

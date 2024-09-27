@@ -16,5 +16,6 @@ userRouter.post('/refresh-token', validate(userValidation.getRefreshToken), user
 userRouter.get('/:userId', auth,  validate(userValidation.getUserById), userController.getUserById);
 userRouter.put('/update-password', validate(userValidation.updatePassword), userController.updatePassword);
 userRouter.post('/forgot-password', validate(userValidation.forgotPassword), userController.forgotPassword);
+userRouter.put('/edit-profile/:userId', auth, validate(userValidation.editProfile), userController.editProfile);
 
 module.exports = userRouter;
