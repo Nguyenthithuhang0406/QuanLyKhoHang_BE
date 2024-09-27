@@ -51,6 +51,7 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
+    default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr3jhpAFYpzxx39DRuXIYxNPXc0zI5F6IiMQ&s"
   },
 });
 
