@@ -1,6 +1,6 @@
 const joi = require('joi');
 const { validateEmail } = require('./utils.validation');
-const {ObjectId} = require('./custom.validation');
+const { ObjectId } = require('./custom.validation');
 
 const register = {
   body: joi.object({
@@ -104,8 +104,21 @@ const login = {
   }),
 };
 
+const getRefreshToken = {
+  body: joi.object({
+    refreshToken: joi.string()
+      .required()
+      .messages({
+        'string.base': 'Refresh token must be a string',
+        'string.empty': 'Refresh token cannot be an empty',
+        'any.required': 'Refresh token is required',
+      }),
+  }),
+};
+
 module.exports = {
   register,
   verifyOTP,
   login,
+  getRefreshToken,
 };

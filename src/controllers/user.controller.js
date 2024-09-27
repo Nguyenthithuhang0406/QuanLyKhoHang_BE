@@ -108,8 +108,47 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
+const getRefreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Refresh token is required");
+  }
+
+  try {
+    const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    const user = await User.findById(payload.userId);
+
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "User not found");
+    }
+
+    const newAccessToken = jwt.sign({ userName: user.userName, userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
+
+    const newRefreshToken = jwt.sign({ userName: user.userName, userId: user._id }, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: '7d',
+    });
+
+    return res.status(httpStatus.OK).json({
+      message: "Token refreshed successfully",
+      code: httpStatus.OK,
+      data: {
+        user,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      },
+    });
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
+  }
+});
+
 module.exports = {
   register,
   verifyOTP,
   login,
+  getRefreshToken,
 };
