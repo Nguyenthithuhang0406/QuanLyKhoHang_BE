@@ -14,5 +14,5 @@ userRouter.post('/verify-otp', validate(userValidation.verifyOTP), userControlle
 userRouter.post('/login', validate(userValidation.login), userController.login);
 userRouter.post('/refresh-token', validate(userValidation.getRefreshToken), userController.getRefreshToken);
 userRouter.get('/:userId', auth,  validate(userValidation.getUserById), userController.getUserById);
-
+userRouter.put('/update-password', validate(userValidation.updatePassword), userController.updatePassword);
 module.exports = userRouter;

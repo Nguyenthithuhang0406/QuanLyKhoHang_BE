@@ -129,10 +129,46 @@ const getUserById = {
   }),
 };
 
+const updatePassword = {
+  body: joi.object({
+    newPassword: joi.string()
+      .required()
+      .min(8)
+      .max(16)
+      .pattern(/[!@#$%^&*(),.?":{}|<>]/)
+      .pattern(/\d/)
+      .pattern(/[A-Za-z].*[A-Za-z]/)
+      .messages({
+        'string.base': 'Password must be a string',
+        'string.empty': 'Password cannot be an empty',
+        'string.min': 'Password must be at least 8 characters long',
+        'string.max': 'Password must be at most 16 characters long',
+        'string.pattern.base': 'Password must contain at least 1 numeric character, 1 special character and 2 alphabetic characters',
+        'any.required': 'Password is required',
+      }),
+    email: joi.string()
+      .custom((value, helpers) => {
+        if (!validateEmail(value)) {
+          return helpers.error('any.invalid', { message: 'Email is invalid' });
+        }
+        return value;
+      }),
+    userId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'userId must be a string',
+        'string.empty': 'userId cannot be an empty',
+        'any.required': 'userId is required',
+      }),
+  }),
+};
+
 module.exports = {
   register,
   verifyOTP,
   login,
   getRefreshToken,
   getUserById,
+  updatePassword,
 };

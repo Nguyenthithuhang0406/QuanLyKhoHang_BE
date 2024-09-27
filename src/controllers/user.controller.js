@@ -164,10 +164,38 @@ const getUserById = catchAsync(async (req, res) => {
   });
 });
 
+const updatePassword = catchAsync(async (req, res) => {
+  const {userId, email, newPassword } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if(user.email !== email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email is incorrect");
+  }
+
+  const hashedPassword = bcrypt.hashSync(newPassword, 10);
+
+  await User.findByIdAndUpdate(userId, { password: hashedPassword });
+
+  return res.status(httpStatus.OK).json({
+    message: "Password updated successfully",
+    code: httpStatus.OK,
+    data: {
+      user,
+    },
+  });
+
+});
+
 module.exports = {
   register,
   verifyOTP,
   login,
   getRefreshToken,
   getUserById,
+  updatePassword
 };
