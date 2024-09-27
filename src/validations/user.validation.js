@@ -1,5 +1,6 @@
 const joi = require('joi');
 const { validateEmail } = require('./utils.validation');
+const {ObjectId} = require('./custom.validation');
 
 const register = {
   body: joi.object({
@@ -64,6 +65,47 @@ const register = {
   }),
 };
 
+const verifyOTP = {
+  body: joi.object({
+    otp: joi.number()
+      .required()
+      .messages({
+        'number.base': 'OTP must be a number',
+        'number.empty': 'OTP cannot be an empty',
+        'any.required': 'OTP is required',
+      }),
+    userId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'userId must be a string',
+        'string.empty': 'userId cannot be an empty',
+        'any.required': 'userId is required',
+      }),
+  }),
+};
+
+const login = {
+  body: joi.object({
+    userName: joi.string()
+      .required()
+      .messages({
+        'string.base': 'Username must be a string',
+        'string.empty': 'Username cannot be an empty',
+        'any.required': 'Username is required',
+      }),
+    password: joi.string()
+      .required()
+      .messages({
+        'string.base': 'Password must be a string',
+        'string.empty': 'Password cannot be an empty',
+        'any.required': 'Password is required',
+      }),
+  }),
+};
+
 module.exports = {
   register,
+  verifyOTP,
+  login,
 };
