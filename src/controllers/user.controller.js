@@ -7,6 +7,7 @@ const OTP = require("../models/otp.model");
 const ApiError = require("@/utils/apiError");
 const catchAsync = require("@/utils/catchAsync");
 const { sendEmail, sendEmailWhenForgetPassword } = require("../utils/nodemailer");
+const { admin } = require("../configs/firebase.config");
 
 const register = catchAsync(async (req, res) => {
   const { staffCode, fullName, email, userName, password, role } = req.body;
@@ -245,6 +246,62 @@ const editProfile = catchAsync(async (req, res) => {
   });
 });
 
+const uploadAvatar = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  
+  if(!req.file) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Avatar is required");
+  }
+
+  const bucket = admin.storage().bucket();
+  const blob = bucket.file(`Avatars/${Date.now()}_${req.file.originalname}`);
+  const blobStream = blob.createWriteStream({
+    metadata: {
+      contentType: req.file.mimetype,
+    },
+  });
+
+  const uploadPromises = new Promise((resolve, reject) => {
+    blobStream.on("error", (error) => {
+      // console.error(error);
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upload avatar!");
+    });
+
+    blobStream.on("finish", () => {
+      // Không hard code url nhé
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(bucket.name)}/o/${encodeURIComponent(blob.name)}?alt=media`;
+      resolve(publicUrl);
+    });
+
+    blobStream.end(req.file.buffer);
+  });
+
+  try {
+    const avatar = await uploadPromises;
+
+    const user = await User.findById(userId);
+  
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    }
+  
+    await User.findByIdAndUpdate(userId, { avatar: avatar });
+  
+    const updatedUser = await User.findById(userId);
+  
+    return res.status(httpStatus.OK).json({
+      message: "Avatar uploaded successfully",
+      code: httpStatus.OK,
+      data: {
+        user: updatedUser,
+      },
+    });
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+
+});
+
 module.exports = {
   register,
   verifyOTP,
@@ -254,4 +311,5 @@ module.exports = {
   updatePassword,
   forgotPassword,
   editProfile,
+  uploadAvatar,
 };

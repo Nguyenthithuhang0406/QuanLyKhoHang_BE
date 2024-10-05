@@ -243,6 +243,19 @@ const editProfile = {
   }),
 };
 
+const uploadAvatar = {
+  params: joi.object({
+    userId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'userId must be a string',
+        'string.empty': 'userId cannot be an empty',
+        'any.required': 'userId is required',
+      }),
+  }),
+};
+
 module.exports = {
   register,
   verifyOTP,
@@ -252,4 +265,5 @@ module.exports = {
   updatePassword,
   forgotPassword,
   editProfile,
+  uploadAvatar,
 };
