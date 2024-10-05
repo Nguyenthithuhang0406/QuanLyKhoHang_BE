@@ -3,7 +3,7 @@ const ApiError = require('../utils/apiError');
 const httpStatus = require('http-status');
 const { admin } = require('../configs/firebase.config');
 
-const uploadFiles = catchAsync(async (req, res) => {
+const uploadFiles = catchAsync(async (req, res, next) => {
 
   const bucket = admin.storage().bucket();
   const uploadPromises = req.files.map((file) => {
