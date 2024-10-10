@@ -12,6 +12,7 @@ const userRouter = express.Router();
 
 userRouter.post('/register', validate(userValidation.register), userController.register);
 userRouter.post('/verify-otp', validate(userValidation.verifyOTP), userController.verifyOTP);
+userRouter.post('/resend-otp', validate(userValidation.resendOTP), userController.resendOTP);
 userRouter.post('/login', validate(userValidation.login), userController.login);
 userRouter.post('/refresh-token', validate(userValidation.getRefreshToken), userController.getRefreshToken);
 userRouter.get('/:userId', auth,  validate(userValidation.getUserById), userController.getUserById);

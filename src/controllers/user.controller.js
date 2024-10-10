@@ -49,6 +49,30 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
 }
 
+const resendOTP = catchAsync(async (req, res) => {
+  const { email, fullName, userId } = req.body;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  };
+
+  if (user.isActive === true) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User is already active");
+  };
+
+  const otp = generateOTP();
+
+  await sendEmail(email, fullName, otp);
+
+  await OTP.findOneAndUpdate({ userId }, { otp });
+
+  return res.status(httpStatus.OK).json({
+    message: "OTP sent successfully",
+    code: httpStatus.OK,
+  });
+});
+
 const verifyOTP = catchAsync(async (req, res) => {
   const { otp, userId } = req.body;
 
@@ -166,7 +190,7 @@ const getUserById = catchAsync(async (req, res) => {
 });
 
 const updatePassword = catchAsync(async (req, res) => {
-  const {userName, email, newPassword } = req.body;
+  const { userName, email, newPassword } = req.body;
 
   const user = await User.findOne({ userName });
 
@@ -174,7 +198,7 @@ const updatePassword = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if(user.email !== email) {
+  if (user.email !== email) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email is incorrect");
   }
 
@@ -196,7 +220,7 @@ const forgotPassword = catchAsync(async (req, res) => {
   const { email, userName } = req.body;
 
   const user = await User.findOne({ userName });
-  
+
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
@@ -248,8 +272,8 @@ const editProfile = catchAsync(async (req, res) => {
 
 const uploadAvatar = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  
-  if(!req.file) {
+
+  if (!req.file) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Avatar is required");
   }
 
@@ -280,15 +304,15 @@ const uploadAvatar = catchAsync(async (req, res) => {
     const avatar = await uploadPromises;
 
     const user = await User.findById(userId);
-  
+
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not found");
     }
-  
+
     await User.findByIdAndUpdate(userId, { avatar: avatar });
-  
+
     const updatedUser = await User.findById(userId);
-  
+
     return res.status(httpStatus.OK).json({
       message: "Avatar uploaded successfully",
       code: httpStatus.OK,
@@ -312,4 +336,5 @@ module.exports = {
   forgotPassword,
   editProfile,
   uploadAvatar,
+  resendOTP
 };

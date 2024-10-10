@@ -85,6 +85,39 @@ const verifyOTP = {
   }),
 };
 
+const resendOTP = {
+  body: joi.object({
+    email: joi.string()
+      .custom((value, helpers) => {
+        if (!validateEmail(value)) {
+          return helpers.error('any.invalid', { message: 'Email is invalid' });
+        }
+        return value;
+      })
+      .required()
+      .messages({
+        'string.base': 'Email must be a string',
+        'string.empty': 'Email cannot be an empty',
+        'any.required': 'Email is required',
+      }),
+    fullName: joi.string()
+      .required()
+      .messages({
+        'string.base': 'fullName must be a string',
+        'string.empty': 'fullName cannot be an empty',
+        'any.required': 'fullName is required',
+      }),
+    userId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'userId must be a string',
+        'string.empty': 'userId cannot be an empty',
+        'any.required': 'userId is required',
+      }),
+  }),
+};
+
 const login = {
   body: joi.object({
     userName: joi.string()
@@ -266,4 +299,5 @@ module.exports = {
   forgotPassword,
   editProfile,
   uploadAvatar,
+  resendOTP,
 };
