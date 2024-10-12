@@ -12,5 +12,6 @@ const productRouter = express.Router();
 
 productRouter.post('/createdProduct', auth, roleMiddleware, upload.array('productMedia', 10), uploadFiles, validate(productValidation.createdProduct), productController.createdProduct);
 productRouter.put('/updatedProduct/:productId', auth, roleMiddleware, upload.array('productMedia', 10), uploadFiles, validate(productValidation.updatedProduct), productController.updatedProduct);
+productRouter.delete('/deleteProduct/:productId', auth, roleMiddleware, validate(productValidation.deleteProduct), productController.deleteProduct);
 
 module.exports = productRouter;

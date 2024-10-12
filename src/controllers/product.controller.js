@@ -65,7 +65,25 @@ const updatedProduct = catchAsync(async (req, res) => {
   });
 });
 
+const deleteProduct = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+
+  const existingProduct = await Product.findById(productId);
+
+  if (!existingProduct) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  await existingProduct.deleteOne();
+  
+  return res.status(httpStatus.OK).json({
+    message: "Product deleted successfully",
+    code: httpStatus.OK,
+  });
+});
+
 module.exports = {
   createdProduct,
   updatedProduct,
+  deleteProduct,
 };
