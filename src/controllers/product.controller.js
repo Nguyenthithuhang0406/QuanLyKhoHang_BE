@@ -82,8 +82,27 @@ const deleteProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getProductById = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  return res.status(httpStatus.OK).json({
+    message: "Product found",
+    code: httpStatus.OK,
+    data: {
+      product,
+    },
+  });
+});
+
 module.exports = {
   createdProduct,
   updatedProduct,
   deleteProduct,
+  getProductById,
 };

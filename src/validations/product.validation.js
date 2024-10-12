@@ -123,8 +123,23 @@ const deleteProduct = {
   }),
 };
 
+const getProductById = {
+  params: joi.object({
+    productId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'Product id must be a string',
+        'string.empty': 'Product id cannot be an empty',
+        'any.required': 'Product id is required',
+        'any.custom': 'Product id must be a valid id',
+      }),
+  }),
+};
+
 module.exports = {
   createdProduct,
   updatedProduct,
   deleteProduct,
+  getProductById,
 };
