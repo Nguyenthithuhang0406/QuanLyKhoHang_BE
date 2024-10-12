@@ -1,4 +1,5 @@
 const joi = require('joi');
+const { ObjectId } = require('./custom.validation');
 
 const createdProduct = {
   body: joi.object({
@@ -55,6 +56,60 @@ const createdProduct = {
   }),
 };
 
+const updatedProduct = {
+  body: joi.object({
+    productName: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Product name must be a string',
+      }),
+    productGroup: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Product group must be a string',
+      }),
+    productMedia: joi.array()
+      .items(joi.string())
+      .optional()
+      .messages({
+        'array.base': 'Product media must be an array',
+      }),
+    fileUrls: joi.array()
+      .items(joi.string())
+      .optional()
+      .messages({
+        'array.base': 'Product media must be an array',
+      }),
+    productDescription: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Product description must be a string',
+      }),
+    productDVT: joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Product DVT must be a string',
+      }),
+    productPrice: joi.number()
+      .optional()
+      .messages({
+        'number.base': 'Product price must be a number',
+      }),
+  }),
+  params: joi.object({
+    productId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'Product id must be a string',
+        'string.empty': 'Product id cannot be an empty',
+        'any.required': 'Product id is required',
+        'any.custom': 'Product id must be a valid id',
+      }),
+  }),
+};
+
 module.exports = {
   createdProduct,
+  updatedProduct,
 };

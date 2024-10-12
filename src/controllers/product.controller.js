@@ -33,6 +33,39 @@ const createdProduct = catchAsync(async (req, res) => {
   });
 });
 
+const updatedProduct = catchAsync(async (req, res) => {
+  const { productName, productGroup,productMedia, fileUrls, productDescription, productDVT, productPrice } = req.body;
+  const { productId } = req.params;
+
+  const existingProduct = await Product.findById(productId);
+
+  if (!existingProduct) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  const updateProduct = {
+    productName: productName ? productName : existingProduct.productName,
+    productGroup: productGroup ? productGroup : existingProduct.productGroup,
+    productMedia: fileUrls ? [...(Array.isArray(productName) ? productMedia : []), ...fileUrls] : productMedia,
+    productDescription: productDescription ? productDescription : existingProduct.productDescription,
+    productDVT: productDVT ? productDVT : existingProduct.productDVT,
+    productPrice: productPrice ? productPrice : existingProduct.productPrice,
+  }
+
+  Object.assign(existingProduct, updateProduct);
+
+  await existingProduct.save();
+
+  return res.status(httpStatus.OK).json({
+    message: "Product updated successfully",
+    code: httpStatus.OK,
+    data: {
+      updateProduct,
+    },
+  });
+});
+
 module.exports = {
   createdProduct,
+  updatedProduct,
 };
