@@ -10,7 +10,7 @@ const upload = multer({
     fileSize: 500 * 1024 * 1024, // gioi han file size < 500MB
   },
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|mp4|mkv|avi/;
+    const filetypes = /jpeg|jpg|png|gif|mp4|mkv|avi|svg|bmp|tiff|webp|heif|heic|raw|jfif/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
