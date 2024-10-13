@@ -11,5 +11,6 @@ suppliesRouter.post('/createSupplies', auth, roleMiddleware, validate(suppliesVa
 suppliesRouter.put('/updateSupplies/:supplyId', auth, roleMiddleware, validate(suppliesValidation.updatedSupply), suppliesController.updatedSupply);
 suppliesRouter.delete('/deleteSupplies/:supplyId', auth, roleMiddleware, validate(suppliesValidation.deletedSupply), suppliesController.deletedSupply);
 suppliesRouter.get('/getSupplyById/:supplyId', auth, validate(suppliesValidation.getSupplyById), suppliesController.getSupplyById);
+suppliesRouter.get('/getSupplies', auth, validate(suppliesValidation.getSupplies), suppliesController.getSupplies);
 
 module.exports = suppliesRouter;

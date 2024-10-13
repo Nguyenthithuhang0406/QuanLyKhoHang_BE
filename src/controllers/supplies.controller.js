@@ -63,7 +63,7 @@ const updatedSupply = catchAsync(async (req, res) => {
   const { supplyId } = req.params;
 
   if (type === 'agency') {
-    const existingAgency = await Agency.findById({_id: supplyId});
+    const existingAgency = await Agency.findById({ _id: supplyId });
     if (!existingAgency) {
       throw new ApiError(httpStatus.NOT_FOUND, "Agency not found");
     }
@@ -91,7 +91,7 @@ const updatedSupply = catchAsync(async (req, res) => {
 
   }
   else {
-    const existingProvider = await Provider.findById({_id: supplyId});
+    const existingProvider = await Provider.findById({ _id: supplyId });
     if (!existingProvider) {
       throw new ApiError(httpStatus.NOT_FOUND, "Provider not found");
     }
@@ -124,7 +124,7 @@ const deletedSupply = catchAsync(async (req, res) => {
   const { type } = req.body;
 
   if (type === 'agency') {
-    const existingAgency = await Agency.findById({_id: supplyId});
+    const existingAgency = await Agency.findById({ _id: supplyId });
     if (!existingAgency) {
       throw new ApiError(httpStatus.NOT_FOUND, "Agency not found");
     }
@@ -137,7 +137,7 @@ const deletedSupply = catchAsync(async (req, res) => {
     });
   }
   else {
-    const existingProvider = await Provider.findById({_id: supplyId});
+    const existingProvider = await Provider.findById({ _id: supplyId });
     if (!existingProvider) {
       throw new ApiError(httpStatus.NOT_FOUND, "Provider not found");
     }
@@ -157,7 +157,7 @@ const getSupplyById = catchAsync(async (req, res) => {
 
   if (type === 'agency') {
     const agency = await Agency.findById({ _id: supplyId });
-    
+
     if (!agency) {
       throw new ApiError(httpStatus.NOT_FOUND, "Agency not found");
     }
@@ -172,7 +172,7 @@ const getSupplyById = catchAsync(async (req, res) => {
   }
   else {
     const provider = await Provider.findById({ _id: supplyId });
-    
+
     if (!provider) {
       throw new ApiError(httpStatus.NOT_FOUND, "Provider not found");
     }
@@ -187,9 +187,64 @@ const getSupplyById = catchAsync(async (req, res) => {
   }
 });
 
+const getSupplies = catchAsync(async (req, res) => {
+  const { limit = 10, page = 1, sortBy = 'name:asc' } = req.query;
+
+  const skip = (+page - 1) * +limit;
+
+  const [field, value] = sortBy.split(':');
+  const sortOrder = value === 'desc' ? -1 : 1;
+
+  let agencies = await Agency.find();
+  let providers = await Provider.find();
+
+  agencies = agencies.map((agency) => ({
+    ...agency.toObject(),
+    name: agency.agencyName,
+  }));
+
+  providers = providers.map((provider) => ({
+    ...provider.toObject(),
+    name: provider.providerName,
+  }));
+
+  let supplies = [...agencies, ...providers];
+
+  supplies = supplies.sort((a, b) => {
+    if (a[field] < b[field]) {
+      return -sortOrder;
+    }
+    if (a[field] > b[field]) {
+      return sortOrder;
+    }
+    return 0;
+  });
+
+  supplies = supplies.slice(skip, skip + +limit);
+  agencies = await Agency.find().limit(+limit).skip(skip).sort({ agencyName: 1 });
+  providers = await Provider.find().limit(+limit).skip(skip).sort({ providerName: 1 });
+
+  const totalResult = agencies.length + providers.length;
+
+  return res.status(httpStatus.OK).json({
+    message: "Supplies found",
+    code: httpStatus.OK,
+    data: {
+      supplies,
+      agencies,
+      providers,
+      limit: +limit,
+      page: +page,
+      totalResult,
+      totalPage: Math.ceil(totalResult / limit),
+    },
+  });
+});
+
 module.exports = {
   createdSupply,
   updatedSupply,
   deletedSupply,
   getSupplyById,
+  getSupplies,
 };

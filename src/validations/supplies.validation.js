@@ -165,9 +165,31 @@ const getSupplyById = {
   }),
 };
 
+const getSupplies = {
+  query: Joi.object({
+    limit: Joi.number()
+      .max(20)
+      .messages({
+        'number.base': 'Limit must be a number',
+        'number.max': 'Limit must be less than or equal to 20',
+      }),
+    page: Joi.number()
+      .min(1)
+      .messages({
+        'number.base': 'Page must be a number',
+        'number.min': 'Page must be greater than or equal to 1',
+      }),
+    sortBy: Joi.string()
+      .messages({
+        'string.base': 'SortBy must be a string',
+      }),
+  }),
+};
+
 module.exports = {
   createdSupply,
   updatedSupply,
   deletedSupply,
   getSupplyById,
+  getSupplies,
 };
