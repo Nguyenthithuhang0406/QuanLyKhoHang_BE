@@ -160,10 +160,42 @@ const getProducts = {
   }),
 };
 
+const searchProduct = {
+  query: joi.object({
+    page: joi.number()
+      .min(1)
+      .messages({
+        'number.base': 'Page must be a number',
+        'number.min': 'Page must be greater than or equal to 1',
+      }),
+    limit: joi.number()
+      .min(1)
+      .max(20)
+      .messages({
+        'number.base': 'Limit must be a number',
+        'number.min': 'Limit must be greater than or equal to 1',
+        'number.max': 'Limit must be less than or equal to 100',
+      }),
+    sortBy: joi.string()
+      .messages({
+        'string.base': 'Sort by must be a string',
+      }),
+    productCode: joi.string()
+      .messages({
+        'string.base': 'Product code must be a string',
+      }),
+    productName: joi.string()
+      .messages({
+        'string.base': 'Product name must be a string',
+      }),
+  }),
+};
+
 module.exports = {
   createdProduct,
   updatedProduct,
   deleteProduct,
   getProductById,
   getProducts,
+  searchProduct,
 };
