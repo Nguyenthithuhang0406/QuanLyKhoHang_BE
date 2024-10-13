@@ -241,10 +241,74 @@ const getSupplies = catchAsync(async (req, res) => {
   });
 });
 
+const searchSupply = catchAsync(async (req, res) => {
+  const { code, name, phone, type, limit = 10, page = 1 } = req.query;
+
+  const skip = (+page - 1) * +limit;
+
+  const query = {};
+  const orConditions = [];
+  
+  if (type === 'agency' || !type) {
+    if (code) {
+      orConditions.push({ agencyCode: { $regex: code, $options: 'i' } });
+    }
+    if (name) {
+      orConditions.push({ agencyName: { $regex: name, $options: 'i' } });
+    }
+    if (phone) {
+      orConditions.push({ agencyPhone: { $regex: phone, $options: 'i' } });
+    }
+  }
+
+  if (type === 'provider' || !type) {
+    if (code) {
+      orConditions.push({ providerCode: { $regex: code, $options: 'i' } });
+    }
+    if (name) {
+      orConditions.push({ providerName: { $regex: name, $options: 'i' } });
+    }
+    if (phone) {
+      orConditions.push({ providerPhone: { $regex: phone, $options: 'i' } });
+    }
+  }
+
+  if (orConditions.length > 0) {
+    query.$or = orConditions;
+  }
+
+  let agencies = [];
+  let providers = [];
+
+  if (type === 'agency' || !type) {
+    agencies = await Agency.find(query).limit(+limit).skip(skip).sort({ agencyName: 1 });
+  }
+  if (type === 'provider' || !type) {
+    providers = await Provider.find(query).limit(+limit).skip(skip).sort({ providerName: 1 });
+  }
+
+  let supplies = [...agencies, ...providers];
+
+  const totalResult = (await Agency.countDocuments(query)) + (await Provider.countDocuments(query));
+
+  return res.status(httpStatus.OK).json({
+    message: "Supplies found",
+    code: httpStatus.OK,
+    data: {
+      supplies,
+      limit: +limit,
+      page: +page,
+      totalResult,
+      totalPage: Math.ceil(totalResult / limit),
+    },
+  });
+});
+
 module.exports = {
   createdSupply,
   updatedSupply,
   deletedSupply,
   getSupplyById,
   getSupplies,
+  searchSupply,
 };

@@ -186,10 +186,47 @@ const getSupplies = {
   }),
 };
 
+const searchSupply = {
+  query: Joi.object({
+    limit: Joi.number()
+      .max(10)
+      .messages({
+        'number.base': 'Limit must be a number',
+        'number.max': 'Limit must be less than or equal to 20',
+      }),
+    page: Joi.number()
+      .min(1)
+      .messages({
+        'number.base': 'Page must be a number',
+        'number.min': 'Page must be greater than or equal to 1',
+      }),
+    code: Joi.string()
+      .messages({
+        'string.base': 'Code must be a string',
+      }),
+    name: Joi.string()
+      .messages({
+        'string.base': 'Name must be a string',
+      }),
+    phone: Joi.string()
+      .messages({
+        'string.base': 'Phone must be a string',
+      }),
+    type: Joi.string()
+      .valid('agency', 'provider')
+      .messages({
+        'string.base': 'Type must be a string',
+        'string.empty': 'Type cannot be an empty',
+        'any.only': 'Type must be agency or provider',
+      }),
+  }),
+};
+
 module.exports = {
   createdSupply,
   updatedSupply,
   deletedSupply,
   getSupplyById,
   getSupplies,
+  searchSupply,
 };
