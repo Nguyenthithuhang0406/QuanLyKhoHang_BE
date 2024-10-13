@@ -10,5 +10,6 @@ const suppliesRouter = express.Router();
 suppliesRouter.post('/createSupplies', auth, roleMiddleware, validate(suppliesValidation.createdSupply), suppliesController.createdSupply);
 suppliesRouter.put('/updateSupplies/:supplyId', auth, roleMiddleware, validate(suppliesValidation.updatedSupply), suppliesController.updatedSupply);
 suppliesRouter.delete('/deleteSupplies/:supplyId', auth, roleMiddleware, validate(suppliesValidation.deletedSupply), suppliesController.deletedSupply);
+suppliesRouter.get('/getSupplyById/:supplyId', auth, validate(suppliesValidation.getSupplyById), suppliesController.getSupplyById);
 
 module.exports = suppliesRouter;
