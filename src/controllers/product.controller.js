@@ -127,10 +127,53 @@ const getProducts = catchAsync(async (req, res) => {
   });
 });
 
+const searchProduct = catchAsync(async (req, res) => {
+  const { productCode, productName, limit = 10, page = 1, sortBy ='productName:asc' } = req.query;
+
+  const query = {};
+  const [field, value] = sortBy.split(':');
+  const sort = { [field]: value === 'desc' ? -1 : 1 };
+
+  if (productCode && !productName) {
+    query.productCode = { $regex: productCode, $options: 'i' };
+  }
+
+  if (productName && !productCode) {
+    query.productName = { $regex: productName, $options: 'i' };
+  }
+
+  if(productCode && productName) {
+    query.$or = [
+      { productCode: { $regex: productCode, $options: 'i' } },
+      { productName: { $regex: productName, $options: 'i' } },
+    ];
+  }
+
+  const skip = (+page - 1) * +limit;
+
+  const products = await Product.find(query).limit(+limit).skip(skip).sort(sort);
+
+  const totalResult = await Product.countDocuments(query);
+
+  return res.status(httpStatus.OK).json({
+    message: "Get products successfully",
+    code: httpStatus.OK,
+    data: {
+      products,
+      limit: +limit,
+      currentPage: +page,
+      totalPage: Math.ceil(totalResult / +limit),
+      totalResult,
+    },
+  });
+});
+
+
 module.exports = {
   createdProduct,
   updatedProduct,
   deleteProduct,
   getProductById,
   getProducts,
+  searchProduct,
 };

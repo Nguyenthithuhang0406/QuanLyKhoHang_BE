@@ -15,5 +15,6 @@ productRouter.put('/updatedProduct/:productId', auth, roleMiddleware, upload.arr
 productRouter.delete('/deleteProduct/:productId', auth, roleMiddleware, validate(productValidation.deleteProduct), productController.deleteProduct);
 productRouter.get('/getProductById/:productId', auth, validate(productValidation.getProductById), productController.getProductById);
 productRouter.get('/getProducts', auth, validate(productValidation.getProducts), productController.getProducts);
+productRouter.get('/searchProduct', auth, validate(productValidation.searchProduct), productController.searchProduct);
 
 module.exports = productRouter;
