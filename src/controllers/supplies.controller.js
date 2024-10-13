@@ -119,7 +119,40 @@ const updatedSupply = catchAsync(async (req, res) => {
   }
 });
 
+const deletedSupply = catchAsync(async (req, res) => {
+  const { supplyId } = req.params;
+  const { type } = req.body;
+
+  if (type === 'agency') {
+    const existingAgency = await Agency.findById({_id: supplyId});
+    if (!existingAgency) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Agency not found");
+    }
+
+    await existingAgency.deleteOne();
+
+    return res.status(httpStatus.OK).json({
+      message: "Agency deleted successfully",
+      code: httpStatus.OK,
+    });
+  }
+  else {
+    const existingProvider = await Provider.findById({_id: supplyId});
+    if (!existingProvider) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Provider not found");
+    }
+
+    await existingProvider.deleteOne();
+
+    return res.status(httpStatus.OK).json({
+      message: "Provider deleted successfully",
+      code: httpStatus.OK,
+    });
+  }
+});
+
 module.exports = {
   createdSupply,
   updatedSupply,
+  deletedSupply,
 };

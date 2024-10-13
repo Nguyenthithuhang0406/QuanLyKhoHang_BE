@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { ObjectId } = require('./custom.validation');
 const createdSupply = {
   body: Joi.object({
     type: Joi.string()
@@ -104,14 +105,43 @@ const updatedSupply = {
   params: Joi.object({
     supplyId: Joi.string()
       .required()
+      .custom(ObjectId)
       .messages({
         'string.base': 'Supply id must be a string',
         'string.empty': 'Supply id cannot be an empty',
         'any.required': 'Supply id is required',
+        'any.custom': 'Supply id must be a valid id',
+      }),
+  }),
+};
+
+const deletedSupply = {
+  params: Joi.object({
+    supplyId: Joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        'string.base': 'Supply id must be a string',
+        'string.empty': 'Supply id cannot be an empty',
+        'any.required': 'Supply id is required',
+        'any.custom': 'Supply id must be a valid id',
+      }),
+  }),
+  body: Joi.object({
+    type: Joi.string()
+      .valid('agency', 'provider')
+      .required()
+      .messages({
+        'string.base': 'Type must be a string',
+        'string.empty': 'Type cannot be an empty',
+        'any.required': 'Type is required',
+        'any.only': 'Type must be agency or provider',
       }),
   }),
 };
 
 module.exports = {
   createdSupply,
+  updatedSupply,
+  deletedSupply,
 };
