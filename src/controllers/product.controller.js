@@ -100,9 +100,37 @@ const getProductById = catchAsync(async (req, res) => {
   });
 });
 
+const getProducts = catchAsync(async (req, res) => {
+  const { page = 1, limit = 10, sortBy = 'productName:asc' } = req.query;
+  
+  const skip = (+page - 1) * +limit;
+
+  const [field, value] = sortBy.split(':');
+  const sort = { [field]: value === 'desc' ? -1 : 1 };
+  
+  const query = {};
+
+  const products = await Product.find().limit(+limit).skip(skip).sort(sort);
+
+  const totalResult = await Product.countDocuments(query);
+
+  return res.status(httpStatus.OK).json({
+    message: "Get products successfully",
+    code: httpStatus.OK,
+    data: {
+      products,
+      limit: +limit,
+      currentPage: +page,
+      totalPage: Math.ceil(totalResult / +limit),
+      totalResult,
+    },
+  });
+});
+
 module.exports = {
   createdProduct,
   updatedProduct,
   deleteProduct,
   getProductById,
+  getProducts,
 };
