@@ -58,6 +58,68 @@ const createdSupply = catchAsync(async (req, res) => {
   }
 });
 
+const updatedSupply = catchAsync(async (req, res) => {
+  const { code, name, address, phone, email, representative, type } = req.body;
+  const { supplyId } = req.params;
+
+  if (type === 'agency') {
+    const existingAgency = await Agency.findById({_id: supplyId});
+    if (!existingAgency) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Agency not found");
+    }
+
+    const updateAgency = {
+      agencyCode: code ? code : existingAgency.agencyCode,
+      agencyName: name ? name : existingAgency.agencyName,
+      agencyAddress: address ? address : existingAgency.agencyAddress,
+      agencyPhone: phone ? phone : existingAgency.agencyPhone,
+      agencyEmail: email ? email : existingAgency.agencyEmail,
+      representative: representative ? representative : existingAgency.representative,
+    }
+
+    Object.assign(existingAgency, updateAgency);
+
+    await existingAgency.save();
+
+    return res.status(httpStatus.OK).json({
+      message: "Agency updated successfully",
+      code: httpStatus.OK,
+      data: {
+        updateAgency,
+      },
+    });
+
+  }
+  else {
+    const existingProvider = await Provider.findById({_id: supplyId});
+    if (!existingProvider) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Provider not found");
+    }
+
+    const updateProvider = {
+      providerCode: code ? code : existingProvider.providerCode,
+      providerName: name ? name : existingProvider.providerName,
+      providerAddress: address ? address : existingProvider.providerAddress,
+      providerPhone: phone ? phone : existingProvider.providerPhone,
+      providerEmail: email ? email : existingProvider.providerEmail,
+      representative: representative ? representative : existingProvider.representative,
+    }
+
+    Object.assign(existingProvider, updateProvider);
+
+    await existingProvider.save();
+
+    return res.status(httpStatus.OK).json({
+      message: "Provider updated successfully",
+      code: httpStatus.OK,
+      data: {
+        updateProvider,
+      },
+    });
+  }
+});
+
 module.exports = {
   createdSupply,
+  updatedSupply,
 };

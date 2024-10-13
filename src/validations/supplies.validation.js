@@ -57,6 +57,61 @@ const createdSupply = {
   }),
 };
 
+const updatedSupply = {
+  body: Joi.object({
+    type: Joi.string()
+      .valid('agency', 'provider')
+      .required()
+      .messages({
+        'string.base': 'Type must be a string',
+        'string.empty': 'Type cannot be an empty',
+        'any.required': 'Type is required',
+        'any.only': 'Type must be agency or provider',
+      }),
+    code: Joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Code must be a string',
+      }),
+    name: Joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Name must be a string',
+      }),
+    address: Joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Address must be a string',
+      }),
+    phone: Joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Phone must be a string',
+      }),
+    email: Joi.string()
+      .email()
+      .optional()
+      .messages({
+        'string.base': 'Email must be a string',
+        'string.email': 'Email must be a valid email',
+      }),
+    representative: Joi.string()
+      .optional()
+      .messages({
+        'string.base': 'Representative must be a string',
+      }),
+  }),
+  params: Joi.object({
+    supplyId: Joi.string()
+      .required()
+      .messages({
+        'string.base': 'Supply id must be a string',
+        'string.empty': 'Supply id cannot be an empty',
+        'any.required': 'Supply id is required',
+      }),
+  }),
+};
+
 module.exports = {
   createdSupply,
 };

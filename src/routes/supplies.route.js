@@ -8,5 +8,6 @@ const { roleMiddleware } = require('@/middlewares/role.middleware');
 const suppliesRouter = express.Router();
 
 suppliesRouter.post('/createSupplies', auth, roleMiddleware, validate(suppliesValidation.createdSupply), suppliesController.createdSupply);
+suppliesRouter.put('/updateSupplies/:supplyId', auth, roleMiddleware, validate(suppliesValidation.updatedSupply), suppliesController.updatedSupply);
 
 module.exports = suppliesRouter;
