@@ -9,6 +9,7 @@ const PORT = process.env.PORT;
 const userRouter = require('@/routes/user.route');
 const productRouter = require('@/routes/product.route');
 const suppliesRouter = require('@/routes/supplies.route');
+const importSlipRouter = require('@/routes/importSlip.route');
 
 app.use(express.json());
 app.use(cors());
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
 app.use('/api/supplies', suppliesRouter);
+app.use('/api/importSlip', importSlipRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
