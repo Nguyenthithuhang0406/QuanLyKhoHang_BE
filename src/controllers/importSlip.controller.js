@@ -11,6 +11,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     status,
     products,
     newProducts,
+    contracts,
   } = req.body;
 
   const listProductsBody = [];
@@ -72,6 +73,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     userId,
     status,
     products: uniqueProducts,
+    contracts,
   });
 
   await importSlip.save();
@@ -84,6 +86,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     },
   });
 });
+
 
 module.exports = {
   createdImportSlip,

@@ -137,6 +137,15 @@ const createdImportSlip = {
       .messages({
         "array.base": "New products must be an array",
       }),
+    contracts: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Contract id must be a string",
+        "string.empty": "Contract id cannot be an empty",
+        "any.required": "Contract id is required",
+        "any.custom": "Contract id must be avalid id",
+      }),
   })
 }
 

@@ -21,6 +21,10 @@ const importSlipSchema = new Schema({
     ref: 'User',
     required: true,
   },
+  userEditStatus: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
   status: {
     type: String,
     enum: ['PENDING', 'CONFIRMED', 'REJECTED'],
@@ -44,6 +48,10 @@ const importSlipSchema = new Schema({
       required: true,
     },
   }],
+  contracts: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Contract',
+  },
 }, {
   timestamps: true,
 });
