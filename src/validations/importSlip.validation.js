@@ -146,9 +146,39 @@ const createdImportSlip = {
         "any.required": "Contract id is required",
         "any.custom": "Contract id must be avalid id",
       }),
+    type: joi.string()
+      .valid("Agency", "Provider", "Customer")
+      .required()
+      .messages({
+        "string.base": "Type must be a string",
+        "string.empty": "Type cannot be an empty",
+        "any.required": "Type is required",
+        "any.only": "Type must be AGENCY, PROVIDER or CUSTOMER",
+      }),
+    reason: joi.string()
+      .optional()
+      .messages({
+        "string.base": "Reason must be a string",
+        "string.empty": "Reason cannot be an empty",
+      }),
   })
+}
+
+const getImportSlipById = {
+  params: joi.object({
+    importSlipId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Import slip id must be a string",
+        "string.empty": "Import slip id cannot be an empty",
+        "any.required": "Import slip id is required",
+        "any.custom": "Import slip id must be avalid id",
+      }),
+  }),
 }
 
 module.exports = {
   createdImportSlip,
+  getImportSlipById,
 };

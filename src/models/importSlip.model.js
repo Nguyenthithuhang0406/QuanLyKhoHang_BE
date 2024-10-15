@@ -14,7 +14,14 @@ const importSlipSchema = new Schema({
   providerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Provider',
-    required: true,
+  },
+  agencyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Agency',
+  },
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +37,11 @@ const importSlipSchema = new Schema({
     enum: ['PENDING', 'CONFIRMED', 'REJECTED'],
     required: true,
     default: 'PENDING',
+  },
+  type: {
+    type: String,
+    enum: ["Agency", "Provider", "Customer"],
+    required: true,
   },
   products: [{
     productId: {
@@ -51,6 +63,12 @@ const importSlipSchema = new Schema({
   contracts: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Contract',
+  },
+  editStatusAt: {
+    type: Date,
+  },
+  reason: {
+    type: String,
   },
 }, {
   timestamps: true,

@@ -12,6 +12,8 @@ const createdImportSlip = catchAsync(async (req, res) => {
     products,
     newProducts,
     contracts,
+    type,
+    reason,
   } = req.body;
 
   const listProductsBody = [];
@@ -69,12 +71,23 @@ const createdImportSlip = catchAsync(async (req, res) => {
 
   const importSlip = new ImportSlip({
     importSlipCode,
-    providerId,
     userId,
     status,
     products: uniqueProducts,
     contracts,
+    type,
+    reason,
   });
+
+  if (type === "Provider") {
+    importSlip.providerId = providerId;
+  } else {
+    if (type === "Agency") {
+      importSlip.agencyId = providerId;
+    } else {
+      importSlip.customerId = providerId;
+    }
+  };
 
   await importSlip.save();
 
@@ -87,7 +100,54 @@ const createdImportSlip = catchAsync(async (req, res) => {
   });
 });
 
+const getImportSlipById = catchAsync(async (req, res) => {
+  const { importSlipId } = req.params;
+
+  let importSlip = await ImportSlip.findById(importSlipId);
+
+  if (!importSlip) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Import slip not found",
+      code: httpStatus.NOT_FOUND,
+    });
+  }
+
+  if (importSlip.type === "Provider") {
+    importSlip = await ImportSlip.findById(importSlipId)
+      .populate("providerId", "providerCode providerName providerAddress providerPhone")
+      .populate("userId", "fullName")
+      .populate("userEditStatus", "fullName")
+      .populate("contracts", "contractContent contractMedia")
+      .populate("products.productId", "productCode productName productDVT productPrice");
+
+  } else {
+    if (importSlip.type === "Agency") {
+      importSlip = await ImportSlip.findById(importSlipId)
+        .populate("agencyId", "agencyCode agencyName agencyAddress agencyPhone")
+        .populate("userId", "fullName")
+        .populate("userEditStatus", "fullName")
+        .populate("contracts", "contractContent contractMedia")
+        .populate("products.productId", "productCode productName productDVT productPrice");
+    } else {
+      importSlip = await ImportSlip.findById(importSlipId)
+        .populate("customerId", "customerName customerAddress customerPhone")
+        .populate("userId", "fullName")
+        .populate("userEditStatus", "fullName")
+        .populate("contracts", "contractContent contractMedia")
+        .populate("products.productId", "productCode productName productDVT productPrice");
+    }
+  }
+  
+  return res.status(httpStatus.OK).json({
+    message: "Import slip found",
+    code: httpStatus.OK,
+    data: {
+      importSlip,
+    },
+  });
+});
 
 module.exports = {
   createdImportSlip,
+  getImportSlipById,
 };
