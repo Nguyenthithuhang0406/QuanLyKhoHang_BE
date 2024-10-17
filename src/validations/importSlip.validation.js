@@ -178,7 +178,22 @@ const getImportSlipById = {
   }),
 }
 
+const deletedImportSlip = {
+  params: joi.object({
+    importSlipId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Import slip id must be a string",
+        "string.empty": "Import slip id cannot be an empty",
+        "any.required": "Import slip id is required",
+        "any.custom": "Import slip id must be avalid id",
+      }),
+  }),
+}
+
 module.exports = {
   createdImportSlip,
   getImportSlipById,
+  deletedImportSlip,
 };
