@@ -11,5 +11,6 @@ importSlipRouter.post('/createImportSlip', auth, validate(importSlipValidation.c
 importSlipRouter.get('/:importSlipId', auth, validate(importSlipValidation.getImportSlipById), importSlipController.getImportSlipById);
 importSlipRouter.delete('/:importSlipId', auth, validate(importSlipValidation.deletedImportSlip), importSlipController.deletedImportSlip);
 importSlipRouter.put('/:importSlipId', auth, validate(importSlipValidation.updatedStatusImportSlip), importSlipController.updatedStatusImportSlip);
+importSlipRouter.get('/', auth, validate(importSlipValidation.getImportSlipByType), importSlipController.getImportSlipByType);
 
 module.exports = importSlipRouter;

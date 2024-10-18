@@ -217,9 +217,34 @@ const updatedStatusImportSlip = {
   }),
 };
 
+const getImportSlipByType = {
+  query: joi.object({
+    type: joi.string()
+      .valid("Agency", "Provider", "Customer")
+      .required()
+      .messages({
+        "string.base": "Type must be a string",
+        "string.empty": "Type cannot be an empty",
+        "any.required": "Type is required",
+        "any.only": "Type must be AGENCY, PROVIDER or CUSTOMER",
+      }),
+    limit: joi.number()
+      .optional()
+      .messages({
+        "number.base": "Limit must be a number",
+      }),
+    page: joi.number()
+      .optional()
+      .messages({
+        "number.base": "Page must be a number",
+      }),
+  }),
+};
+
 module.exports = {
   createdImportSlip,
   getImportSlipById,
   deletedImportSlip,
   updatedStatusImportSlip,
+  getImportSlipByType,
 };
