@@ -10,5 +10,6 @@ const importSlipRouter = express.Router();
 importSlipRouter.post('/createImportSlip', auth, validate(importSlipValidation.createdImportSlip), importSlipController.createdImportSlip);
 importSlipRouter.get('/:importSlipId', auth, validate(importSlipValidation.getImportSlipById), importSlipController.getImportSlipById);
 importSlipRouter.delete('/:importSlipId', auth, validate(importSlipValidation.deletedImportSlip), importSlipController.deletedImportSlip);
+importSlipRouter.put('/:importSlipId', auth, validate(importSlipValidation.updatedStatusImportSlip), importSlipController.updatedStatusImportSlip);
 
 module.exports = importSlipRouter;

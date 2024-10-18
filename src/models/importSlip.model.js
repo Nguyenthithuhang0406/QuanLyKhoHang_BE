@@ -32,9 +32,10 @@ const importSlipSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  //cho duyet, da duyet, tu choi, da nhap
   status: {
     type: String,
-    enum: ['PENDING', 'CONFIRMED', 'REJECTED'],
+    enum: ['PENDING', 'CONFIRMED', 'REJECTED', "DONE"],
     required: true,
     default: 'PENDING',
   },

@@ -29,7 +29,7 @@ const createdImportSlip = {
         "any.custom": "User id must be avalid id",
       }),
     status: joi.string()
-      .valid("PENDING", "CONFIRMED", "REJECTED")
+      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
       .required()
       .messages({
         "string.base": "Status must be a string",
@@ -192,8 +192,34 @@ const deletedImportSlip = {
   }),
 }
 
+const updatedStatusImportSlip = {
+  params: joi.object({
+    importSlipId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Import slip id must be a string",
+        "string.empty": "Import slip id cannot be an empty",
+        "any.required": "Import slip id is required",
+        "any.custom": "Import slip id must be avalid id",
+      }),
+  }),
+  body: joi.object({
+    status: joi.string()
+      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
+      .required()
+      .messages({
+        "string.base": "Status must be a string",
+        "string.empty": "Status cannot be an empty",
+        "any.required": "Status is required",
+        "any.only": "Status must be PENDING, CONFIRMED or REJECTED",
+      }),
+  }),
+};
+
 module.exports = {
   createdImportSlip,
   getImportSlipById,
   deletedImportSlip,
+  updatedStatusImportSlip,
 };

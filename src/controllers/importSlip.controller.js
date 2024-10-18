@@ -165,8 +165,34 @@ const deletedImportSlip = catchAsync(async (req, res) => {
   });
 });
 
+const updatedStatusImportSlip = catchAsync(async (req, res) => {
+  const { importSlipId } = req.params;
+  const { status } = req.body;
+
+  const importSlip = await ImportSlip.findById(importSlipId);
+
+  if (!importSlip) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Import slip not found",
+      code: httpStatus.NOT_FOUND,
+    });
+  }
+
+  importSlip.status = status;
+  await importSlip.save();
+
+  return res.status(httpStatus.OK).json({
+    message: "Import slip updated successfully",
+    code: httpStatus.OK,
+    data: {
+      importSlip,
+    },
+  });
+});
+
 module.exports = {
   createdImportSlip,
   getImportSlipById,
   deletedImportSlip,
+  updatedStatusImportSlip,
 };
