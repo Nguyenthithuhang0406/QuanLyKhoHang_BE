@@ -112,7 +112,7 @@ const getProducts = catchAsync(async (req, res) => {
 
   const products = await Product.find().limit(+limit).skip(skip).sort(sort);
 
-  const totalResult = await Product.countDocuments(query);
+  const totalResult = products.length;
 
   return res.status(httpStatus.OK).json({
     message: "Get products successfully",
@@ -153,7 +153,7 @@ const searchProduct = catchAsync(async (req, res) => {
 
   const products = await Product.find(query).limit(+limit).skip(skip).sort(sort);
 
-  const totalResult = await Product.countDocuments(query);
+  const totalResult = products.length;
 
   return res.status(httpStatus.OK).json({
     message: "Get products successfully",
