@@ -26,10 +26,10 @@ const createdImportSlip = catchAsync(async (req, res) => {
       });
     }
   }
-    
+
   const createNewProducts = [];
   if (newProducts && newProducts.length > 0) {
-    for(const product of newProducts) {
+    for (const product of newProducts) {
       //kiểm tra xem product đã tồn tại chưa
       const existingProduct = await Product.findOne({ productName: product.productName });
 
@@ -65,9 +65,9 @@ const createdImportSlip = catchAsync(async (req, res) => {
   const allProducts = [...listProductsBody, ...createNewProducts];
 
   const uniqueProducts = Array.from(new Set(allProducts.map(p => p.productId.toString())))
-  .map(productId => {
-    return allProducts.find(p => p.productId.toString() === productId);
-  });
+    .map(productId => {
+      return allProducts.find(p => p.productId.toString() === productId);
+    });
 
   const importSlip = new ImportSlip({
     importSlipCode,
@@ -137,7 +137,7 @@ const getImportSlipById = catchAsync(async (req, res) => {
         .populate("products.productId", "productCode productName productDVT productPrice");
     }
   }
-  
+
   return res.status(httpStatus.OK).json({
     message: "Import slip found",
     code: httpStatus.OK,
@@ -216,7 +216,7 @@ const getImportSlipByType = catchAsync(async (req, res) => {
   };
 
   const totalResult = importSlip.length;
-  
+
   return res.status(httpStatus.OK).json({
     message: "Get importSlip successfully",
     code: httpStatus.OK,
@@ -230,10 +230,63 @@ const getImportSlipByType = catchAsync(async (req, res) => {
   });
 });
 
+const searchImportSlips = catchAsync(async (req, res) => {
+  const { importSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
+
+  const query = { $or: [] };
+
+  if (importSlipCode) {
+    query.$or.push({ importSlipCode: { $regex: importSlipCode, $options: 'i' } });
+  }
+
+  if (providerId) {
+    query.$or.push({ providerId });
+  }
+
+  if (agencyId) {
+    query.$or.push({ agencyId });
+  }
+
+  if (customerId) {
+    query.$or.push({ customerId });
+  }
+
+  if (status) {
+    query.$or.push({ status: { $regex: status, $options: 'i' } });
+  }
+
+  if (timeStart && timeEnd) {
+    query.$or.push({ createdAt: { $gte: timeStart, $lte: timeEnd } });
+  }
+
+  //neu khong co dieu kien tim kiem thi xoa $or de tranh truy van trong, khi do se tra ve tat ca cac phieu nhap
+  if (query.$or.length === 0) {
+    delete query.$or;
+  }
+  const skip = (+page - 1) * +limit;
+
+  const importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
+
+  const totalResult = importSlips.length;
+
+  return res.status(httpStatus.OK).json({
+    message: "Get importSlips successfully",
+    code: httpStatus.OK,
+    data: {
+      importSlips,
+      limit: +limit,
+      page: +page,
+      totalResult,
+      totalPage: Math.ceil(totalResult / +limit),
+    },
+  });
+});
+
 module.exports = {
   createdImportSlip,
   getImportSlipById,
   deletedImportSlip,
   updatedStatusImportSlip,
   getImportSlipByType,
+  searchImportSlips,
 };

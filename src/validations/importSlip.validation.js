@@ -241,10 +241,73 @@ const getImportSlipByType = {
   }),
 };
 
+const searchImportSlips = {
+  query: joi.object({
+    importSlipCode: joi.string()
+      .optional()
+      .messages({
+        "string.base": "Import slip code must be a string",
+        "string.empty": "Import slip code cannot be an empty",
+      }),
+    providerId: joi.string()
+      .optional()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Provider id must be a string",
+        "string.empty": "Provider id cannot be an empty",
+        "any.custom": "Provider id must be avalid id",
+      }),
+    agencyId: joi.string()
+      .optional()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Agency id must be a string",
+        "string.empty": "Agency id cannot be an empty",
+        "any.custom": "Agency id must be avalid id",
+      }),
+    customerId: joi.string()
+      .optional()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Customer id must be a string",
+        "string.empty": "Customer id cannot be an empty",
+        "any.custom": "Customer id must be avalid id",
+      }),
+    timeStart: joi.date()
+      .optional()
+      .messages({
+        "date.base": "Time start must be a date",
+      }),
+    timeEnd: joi.date()
+      .optional()
+      .messages({
+        "date.base": "Time end must be a date",
+      }),
+    status: joi.string()
+      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
+      .optional()
+      .messages({
+        "string.base": "Status must be a string",
+        "string.empty": "Status cannot be an empty",
+        "any.only": "Status must be PENDING, CONFIRMED or REJECTED",
+      }),
+    limit: joi.number()
+      .optional()
+      .messages({
+        "number.base": "Limit must be a number",
+      }),
+    page: joi.number()
+      .optional()
+      .messages({
+        "number.base": "Page must be a number",
+      }),
+  }),
+}
 module.exports = {
   createdImportSlip,
   getImportSlipById,
   deletedImportSlip,
   updatedStatusImportSlip,
   getImportSlipByType,
+  searchImportSlips,
 };
