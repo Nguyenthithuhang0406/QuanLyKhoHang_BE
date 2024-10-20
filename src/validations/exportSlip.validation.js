@@ -1,14 +1,14 @@
 const joi = require("joi");
 const { ObjectId } = require("./custom.validation");
 
-const createdImportSlip = {
+const createdExportSlip = {
   body: joi.object({
-    importSlipCode: joi.string()
+    exportSlipCode: joi.string()
       .required()
       .messages({
-        "string.base": "Import slip code must be a string",
-        "string.empty": "Import slip code cannot be an empty",
-        "any.required": "Import slip code is required",
+        "string.base": "Export slip code must be a string",
+        "string.empty": "Export slip code cannot be an empty",
+        "any.required": "Export slip code is required",
       }),
     providerId: joi.string()
       .required()
@@ -164,60 +164,60 @@ const createdImportSlip = {
   })
 }
 
-const getImportSlipById = {
+const getExportSlipById = {
   params: joi.object({
-    importSlipId: joi.string()
+    exportSlipId: joi.string()
       .required()
       .custom(ObjectId)
       .messages({
-        "string.base": "Import slip id must be a string",
-        "string.empty": "Import slip id cannot be an empty",
-        "any.required": "Import slip id is required",
-        "any.custom": "Import slip id must be avalid id",
+        "string.base": "Export slip id must be a string",
+        "string.empty": "Export slip id cannot be an empty",
+        "any.required": "Export slip id is required",
+        "any.custom": "Export slip id must be avalid id",
       }),
   }),
 }
 
-const deletedImportSlip = {
+const deletedExportSlip = {
   params: joi.object({
-    importSlipId: joi.string()
+    exportSlipId: joi.string()
       .required()
       .custom(ObjectId)
       .messages({
-        "string.base": "Import slip id must be a string",
-        "string.empty": "Import slip id cannot be an empty",
-        "any.required": "Import slip id is required",
-        "any.custom": "Import slip id must be avalid id",
+        "string.base": "Export slip id must be a string",
+        "string.empty": "Export slip id cannot be an empty",
+        "any.required": "Export slip id is required",
+        "any.custom": "Export slip id must be avalid id",
       }),
   }),
 }
 
-const updatedStatusImportSlip = {
+const updatedStatusExportSlip = {
   params: joi.object({
-    importSlipId: joi.string()
+    exportSlipId: joi.string()
       .required()
       .custom(ObjectId)
       .messages({
-        "string.base": "Import slip id must be a string",
-        "string.empty": "Import slip id cannot be an empty",
-        "any.required": "Import slip id is required",
-        "any.custom": "Import slip id must be avalid id",
+        "string.base": "Export slip id must be a string",
+        "string.empty": "Export slip id cannot be an empty",
+        "any.required": "Export slip id is required",
+        "any.custom": "Export slip id must be avalid id",
       }),
   }),
   body: joi.object({
     status: joi.string()
-      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
+      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE", "RETURNED")
       .required()
       .messages({
         "string.base": "Status must be a string",
         "string.empty": "Status cannot be an empty",
         "any.required": "Status is required",
-        "any.only": "Status must be PENDING, CONFIRMED or REJECTED",
+        "any.only": "Status must be PENDING, CONFIRMED, REJECTED, DONE or RETURNED",
       }),
   }),
 };
 
-const getImportSlipByType = {
+const getExportSlipByType = {
   query: joi.object({
     type: joi.string()
       .valid("Agency", "Provider", "Customer")
@@ -241,13 +241,13 @@ const getImportSlipByType = {
   }),
 };
 
-const searchImportSlips = {
+const searchExportSlips = {
   query: joi.object({
-    importSlipCode: joi.string()
+    exportSlipCode: joi.string()
       .optional()
       .messages({
-        "string.base": "Import slip code must be a string",
-        "string.empty": "Import slip code cannot be an empty",
+        "string.base": "Export slip code must be a string",
+        "string.empty": "Export slip code cannot be an empty",
       }),
     providerId: joi.string()
       .optional()
@@ -303,11 +303,12 @@ const searchImportSlips = {
       }),
   }),
 }
+
 module.exports = {
-  createdImportSlip,
-  getImportSlipById,
-  deletedImportSlip,
-  updatedStatusImportSlip,
-  getImportSlipByType,
-  searchImportSlips,
-};
+  createdExportSlip,
+  getExportSlipById,
+  deletedExportSlip,
+  updatedStatusExportSlip,
+  getExportSlipByType,
+  searchExportSlips,
+}

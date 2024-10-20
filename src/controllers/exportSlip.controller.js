@@ -1,11 +1,11 @@
 const httpStatus = require("http-status");
-const ImportSlip = require("../models/importSlip.model");
+const ExportSlip = require("../models/exportSlip.model");
 const Product = require("../models/product.model");
 const catchAsync = require("../utils/catchAsync");
 
-const createdImportSlip = catchAsync(async (req, res) => {
+const createdExportSlip = catchAsync(async (req, res) => {
   const {
-    importSlipCode,
+    exportSlipCode,
     providerId,
     userId,
     status,
@@ -69,8 +69,8 @@ const createdImportSlip = catchAsync(async (req, res) => {
       return allProducts.find(p => p.productId.toString() === productId);
     });
 
-  const importSlip = new ImportSlip({
-    importSlipCode,
+  const exportSlip = new ExportSlip({
+    exportSlipCode,
     userId,
     status,
     products: uniqueProducts,
@@ -80,40 +80,40 @@ const createdImportSlip = catchAsync(async (req, res) => {
   });
 
   if (type === "Provider") {
-    importSlip.providerId = providerId;
+    exportSlip.providerId = providerId;
   } else {
     if (type === "Agency") {
-      importSlip.agencyId = providerId;
+      exportSlip.agencyId = providerId;
     } else {
-      importSlip.customerId = providerId;
+      exportSlip.customerId = providerId;
     }
   };
 
-  await importSlip.save();
+  await exportSlip.save();
 
   return res.status(httpStatus.CREATED).json({
-    message: "Import slip created successfully",
+    message: "Export slip created successfully",
     code: httpStatus.CREATED,
     data: {
-      importSlip,
+      exportSlip,
     },
   });
 });
 
-const getImportSlipById = catchAsync(async (req, res) => {
-  const { importSlipId } = req.params;
+const getExportSlipById = catchAsync(async (req, res) => {
+  const { exportSlipId } = req.params;
 
-  let importSlip = await ImportSlip.findById(importSlipId);
+  let exportSlip = await ExportSlip.findById(exportSlipId);
 
-  if (!importSlip) {
+  if (!exportSlip) {
     return res.status(httpStatus.NOT_FOUND).json({
-      message: "Import slip not found",
+      message: "Export slip not found",
       code: httpStatus.NOT_FOUND,
     });
   }
 
-  if (importSlip.type === "Provider") {
-    importSlip = await ImportSlip.findById(importSlipId)
+  if (exportSlip.type === "Provider") {
+    exportSlip = await ExportSlip.findById(exportSlipId)
       .populate("providerId", "providerCode providerName providerAddress providerPhone")
       .populate("userId", "fullName")
       .populate("userEditStatus", "fullName")
@@ -122,8 +122,8 @@ const getImportSlipById = catchAsync(async (req, res) => {
       .populate("userEditStatus", "fullName userName email phoneNumber role");
 
   } else {
-    if (importSlip.type === "Agency") {
-      importSlip = await ImportSlip.findById(importSlipId)
+    if (exportSlip.type === "Agency") {
+      exportSlip = await ExportSlip.findById(exportSlipId)
         .populate("agencyId", "agencyCode agencyName agencyAddress agencyPhone")
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
@@ -131,7 +131,7 @@ const getImportSlipById = catchAsync(async (req, res) => {
         .populate("products.productId", "productCode productName productDVT productPrice")
         .populate("userEditStatus", "fullName userName email phoneNumber role");
     } else {
-      importSlip = await ImportSlip.findById(importSlipId)
+      exportSlip = await ExportSlip.findById(exportSlipId)
         .populate("customerId", "customerName customerAddress customerPhone")
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
@@ -142,91 +142,91 @@ const getImportSlipById = catchAsync(async (req, res) => {
   }
 
   return res.status(httpStatus.OK).json({
-    message: "Import slip found",
+    message: "Export slip found",
     code: httpStatus.OK,
     data: {
-      importSlip,
+      exportSlip,
     },
   });
 });
 
-const deletedImportSlip = catchAsync(async (req, res) => {
-  const { importSlipId } = req.params;
+const deletedExportSlip = catchAsync(async (req, res) => {
+  const { exportSlipId } = req.params;
 
-  const importSlip = await ImportSlip.findByIdAndDelete(importSlipId);
+  const exportSlip = await ExportSlip.findByIdAndDelete(exportSlipId);
 
-  if (!importSlip) {
+  if (!exportSlip) {
     return res.status(httpStatus.NOT_FOUND).json({
-      message: "Import slip not found",
+      message: "Export slip not found",
       code: httpStatus.NOT_FOUND,
     });
   }
 
   return res.status(httpStatus.OK).json({
-    message: "Import slip deleted successfully",
+    message: "Export slip deleted successfully",
     code: httpStatus.OK,
   });
 });
 
-const updatedStatusImportSlip = catchAsync(async (req, res) => {
-  const { importSlipId } = req.params;
+const updatedStatusExportSlip = catchAsync(async (req, res) => {
+  const { exportSlipId } = req.params;
   const { status } = req.body;
   const userId = req.user._id;
 
-  const importSlip = await ImportSlip.findById(importSlipId);
+  const exportSlip = await ExportSlip.findById(exportSlipId);
 
-  if (!importSlip) {
+  if (!exportSlip) {
     return res.status(httpStatus.NOT_FOUND).json({
-      message: "Import slip not found",
+      message: "Export slip not found",
       code: httpStatus.NOT_FOUND,
     });
   }
 
-  importSlip.status = status;
-  importSlip.userEditStatus = userId;
-  await importSlip.save();
+  exportSlip.status = status;
+  exportSlip.userEditStatus = userId;
+  await exportSlip.save();
 
   return res.status(httpStatus.OK).json({
-    message: "Import slip updated successfully",
+    message: "Export slip updated successfully",
     code: httpStatus.OK,
     data: {
-      importSlip,
+      exportSlip,
     },
   });
 });
 
-const getImportSlipByType = catchAsync(async (req, res) => {
+const getExportSlipByType = catchAsync(async (req, res) => {
   const { type, limit = 10, page = 1 } = req.query;
 
   const skip = (+page - 1) * +limit;
-  let importSlip;
+  let exportSlip;
 
   if (type === "Provider") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("providerId", "providerName").sort({ providerName: 1 });
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("providerId", "providerName").sort({ providerName: 1 });
   };
 
   if (type === "Agency") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("agencyId", "agencyName").sort({ agencyName: 1 });
   }
 
   if (type === "Customer") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("customerId", "customerName").sort({ customerName: 1 });
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("customerId", "customerName").sort({ customerName: 1 });
   }
 
-  if (!importSlip) {
+  if (!exportSlip) {
     return res.status(httpStatus.NOT_FOUND).json({
-      message: "Import slip not found",
+      message: "Export slip not found",
       code: httpStatus.NOT_FOUND,
     });
   };
 
-  const totalResult = importSlip.length;
+  const totalResult = exportSlip.length;
 
   return res.status(httpStatus.OK).json({
-    message: "Get importSlip successfully",
+    message: "Get exportSlip successfully",
     code: httpStatus.OK,
     data: {
-      importSlip,
+      exportSlip,
       limit: +limit,
       page: +page,
       totalResult,
@@ -235,13 +235,13 @@ const getImportSlipByType = catchAsync(async (req, res) => {
   });
 });
 
-const searchImportSlips = catchAsync(async (req, res) => {
-  const { importSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
+const searchExportSlips = catchAsync(async (req, res) => {
+  const { exportSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
 
   const query = { $or: [] };
 
-  if (importSlipCode) {
-    query.$or.push({ importSlipCode: { $regex: importSlipCode, $options: 'i' } });
+  if (exportSlipCode) {
+    query.$or.push({ exportSlipCode: { $regex: exportSlipCode, $options: 'i' } });
   }
 
   if (providerId) {
@@ -270,15 +270,15 @@ const searchImportSlips = catchAsync(async (req, res) => {
   }
   const skip = (+page - 1) * +limit;
 
-  const importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
+  const exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
 
-  const totalResult = importSlips.length;
+  const totalResult = exportSlips.length;
 
   return res.status(httpStatus.OK).json({
-    message: "Get importSlips successfully",
+    message: "Get ExportSlips successfully",
     code: httpStatus.OK,
     data: {
-      importSlips,
+      exportSlips,
       limit: +limit,
       page: +page,
       totalResult,
@@ -288,10 +288,10 @@ const searchImportSlips = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  createdImportSlip,
-  getImportSlipById,
-  deletedImportSlip,
-  updatedStatusImportSlip,
-  getImportSlipByType,
-  searchImportSlips,
+  createdExportSlip,
+  getExportSlipById,
+  deletedExportSlip,
+  updatedStatusExportSlip,
+  getExportSlipByType,
+  searchExportSlips,
 };

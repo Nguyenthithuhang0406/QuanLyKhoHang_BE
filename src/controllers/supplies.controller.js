@@ -289,7 +289,7 @@ const searchSupply = catchAsync(async (req, res) => {
 
   let supplies = [...agencies, ...providers];
 
-  const totalResult = (await Agency.countDocuments(query)) + (await Provider.countDocuments(query));
+  const totalResult = agencies.length + providers.length;
 
   return res.status(httpStatus.OK).json({
     message: "Supplies found",

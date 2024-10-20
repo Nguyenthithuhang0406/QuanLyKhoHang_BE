@@ -11,6 +11,7 @@ const productRouter = require('@/routes/product.route');
 const suppliesRouter = require('@/routes/supplies.route');
 const importSlipRouter = require('@/routes/importSlip.route');
 const contractRouter = require('@/routes/contract.route');
+const exportSlipRouter = require('./src/routes/exportSlip.route');
 
 app.use(express.json());
 app.use(cors());
@@ -20,6 +21,7 @@ app.use('/api/product', productRouter);
 app.use('/api/supplies', suppliesRouter);
 app.use('/api/importSlip', importSlipRouter);
 app.use('/api/contract', contractRouter);
+app.use('/api/exportSlip', exportSlipRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

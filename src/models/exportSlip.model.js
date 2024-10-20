@@ -1,16 +1,17 @@
-//phieu nhap kho
+//phieu xuat kho
 const { Schema, default: mongoose } = require('mongoose');
 
-const importSlipSchema = new Schema({
-  importSlipCode: {
+const exportSlipSchema = new Schema({
+  exportSlipCode: {
     type: String,
     required: true,
   },
-  importSlipDate: {
+  exportSlipDate: {
     type: Date,
     required: true,
     default: Date.now,
   },
+  //nguon nhan
   providerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Provider',
@@ -32,10 +33,10 @@ const importSlipSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  //cho duyet, da duyet, tu choi, da nhap
+  //cho duyet, da duyet, tu choi, da xuất, hoàn hàng
   status: {
     type: String,
-    enum: ['PENDING', 'CONFIRMED', 'REJECTED', "DONE"],
+    enum: ['PENDING', 'CONFIRMED', 'REJECTED', "DONE", "RETURNED"],
     required: true,
     default: 'PENDING',
   },
@@ -50,7 +51,7 @@ const importSlipSchema = new Schema({
       ref: 'Product',
       required: true,
     },
-    //số lượng nhập
+    //số lượng xuat
     quantity: {
       type: Number,
       required: true,
@@ -75,5 +76,5 @@ const importSlipSchema = new Schema({
   timestamps: true,
 });
 
-const ImportSlip = mongoose.model('ImportSlip', importSlipSchema);
-module.exports = ImportSlip;
+const ExportSlip = mongoose.model('ExportSlip', exportSlipSchema);
+module.exports = ExportSlip;
