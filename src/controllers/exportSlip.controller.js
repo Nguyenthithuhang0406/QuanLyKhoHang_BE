@@ -190,9 +190,49 @@ const updatedStatusExportSlip = catchAsync(async (req, res) => {
   });
 });
 
+const getExportSlipByType = catchAsync(async (req, res) => {
+  const { type, limit = 10, page = 1 } = req.query;
+
+  const skip = (+page - 1) * +limit;
+  let exportSlip;
+
+  if (type === "Provider") {
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("providerId", "providerName").sort({ providerName: 1 });
+  };
+
+  if (type === "Agency") {
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+  }
+
+  if (type === "Customer") {
+    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("customerId", "customerName").sort({ customerName: 1 });
+  }
+
+  if (!exportSlip) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Export slip not found",
+      code: httpStatus.NOT_FOUND,
+    });
+  };
+
+  const totalResult = exportSlip.length;
+
+  return res.status(httpStatus.OK).json({
+    message: "Get exportSlip successfully",
+    code: httpStatus.OK,
+    data: {
+      exportSlip,
+      limit: +limit,
+      page: +page,
+      totalResult,
+      totalPage: Math.ceil(totalResult / limit),
+    },
+  });
+});
 module.exports = {
   createdExportSlip,
   getExportSlipById,
   deletedExportSlip,
   updatedStatusExportSlip,
+  getExportSlipByType,
 };

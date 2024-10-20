@@ -12,5 +12,6 @@ exportSlipRouter.post('/createExportSlip', auth, validate(exportSlipValidation.c
 exportSlipRouter.get('/:exportSlipId', auth, validate(exportSlipValidation.getExportSlipById), exportSlipController.getExportSlipById);
 exportSlipRouter.delete('/:exportSlipId', auth, validate(exportSlipValidation.deletedExportSlip), exportSlipController.deletedExportSlip);
 exportSlipRouter.put('/:exportSlipId', auth, validate(exportSlipValidation.updatedStatusExportSlip), exportSlipController.updatedStatusExportSlip);
+exportSlipRouter.get('/', auth, validate(exportSlipValidation.getExportSlipByType), exportSlipController.getExportSlipByType);
 
 module.exports = exportSlipRouter;
