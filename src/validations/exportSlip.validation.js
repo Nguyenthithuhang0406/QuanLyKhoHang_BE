@@ -178,7 +178,22 @@ const getExportSlipById = {
   }),
 }
 
+const deletedExportSlip = {
+  params: joi.object({
+    exportSlipId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Export slip id must be a string",
+        "string.empty": "Export slip id cannot be an empty",
+        "any.required": "Export slip id is required",
+        "any.custom": "Export slip id must be avalid id",
+      }),
+  }),
+}
+
 module.exports = {
   createdExportSlip,
   getExportSlipById,
+  deletedExportSlip,
 }
