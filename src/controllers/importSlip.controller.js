@@ -118,7 +118,8 @@ const getImportSlipById = catchAsync(async (req, res) => {
       .populate("userId", "fullName")
       .populate("userEditStatus", "fullName")
       .populate("contracts", "contractContent contractMedia")
-      .populate("products.productId", "productCode productName productDVT productPrice");
+      .populate("products.productId", "productCode productName productDVT productPrice")
+      .populate("userEditStatus", "fullName userName email phoneNumber role");
 
   } else {
     if (importSlip.type === "Agency") {
@@ -127,14 +128,16 @@ const getImportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice");
+        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate("userEditStatus", "fullName userName email phoneNumber role");
     } else {
       importSlip = await ImportSlip.findById(importSlipId)
         .populate("customerId", "customerName customerAddress customerPhone")
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice");
+        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate("userEditStatus", "fullName userName email phoneNumber role");
     }
   }
 
@@ -168,6 +171,7 @@ const deletedImportSlip = catchAsync(async (req, res) => {
 const updatedStatusImportSlip = catchAsync(async (req, res) => {
   const { importSlipId } = req.params;
   const { status } = req.body;
+  const userId = req.user._id;
 
   const importSlip = await ImportSlip.findById(importSlipId);
 
@@ -179,6 +183,7 @@ const updatedStatusImportSlip = catchAsync(async (req, res) => {
   }
 
   importSlip.status = status;
+  importSlip.userEditStatus = userId;
   await importSlip.save();
 
   return res.status(httpStatus.OK).json({

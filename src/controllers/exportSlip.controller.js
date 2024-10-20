@@ -118,7 +118,8 @@ const getExportSlipById = catchAsync(async (req, res) => {
       .populate("userId", "fullName")
       .populate("userEditStatus", "fullName")
       .populate("contracts", "contractContent contractMedia")
-      .populate("products.productId", "productCode productName productDVT productPrice");
+      .populate("products.productId", "productCode productName productDVT productPrice")
+      .populate("userEditStatus", "fullName userName email phoneNumber role");
 
   } else {
     if (exportSlip.type === "Agency") {
@@ -127,14 +128,16 @@ const getExportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice");
+        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate("userEditStatus", "fullName userName email phoneNumber role");
     } else {
       exportSlip = await ExportSlip.findById(exportSlipId)
         .populate("customerId", "customerName customerAddress customerPhone")
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice");
+        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate("userEditStatus", "fullName userName email phoneNumber role");
     }
   }
 
@@ -168,6 +171,7 @@ const deletedExportSlip = catchAsync(async (req, res) => {
 const updatedStatusExportSlip = catchAsync(async (req, res) => {
   const { exportSlipId } = req.params;
   const { status } = req.body;
+  const userId = req.user._id;
 
   const exportSlip = await ExportSlip.findById(exportSlipId);
 
@@ -179,6 +183,7 @@ const updatedStatusExportSlip = catchAsync(async (req, res) => {
   }
 
   exportSlip.status = status;
+  exportSlip.userEditStatus = userId;
   await exportSlip.save();
 
   return res.status(httpStatus.OK).json({
