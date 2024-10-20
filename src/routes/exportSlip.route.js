@@ -11,5 +11,6 @@ exportSlipRouter.post('/createExportSlip', auth, validate(exportSlipValidation.c
 // exportSlipRouter.get('/searchImportSlips', auth, validate(importSlipValidation.searchImportSlips), importSlipController.searchImportSlips);
 exportSlipRouter.get('/:exportSlipId', auth, validate(exportSlipValidation.getExportSlipById), exportSlipController.getExportSlipById);
 exportSlipRouter.delete('/:exportSlipId', auth, validate(exportSlipValidation.deletedExportSlip), exportSlipController.deletedExportSlip);
+exportSlipRouter.put('/:exportSlipId', auth, validate(exportSlipValidation.updatedStatusExportSlip), exportSlipController.updatedStatusExportSlip);
 
 module.exports = exportSlipRouter;

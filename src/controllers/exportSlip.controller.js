@@ -139,7 +139,7 @@ const getExportSlipById = catchAsync(async (req, res) => {
   }
 
   return res.status(httpStatus.OK).json({
-    message: "Import slip found",
+    message: "Export slip found",
     code: httpStatus.OK,
     data: {
       exportSlip,
@@ -165,8 +165,34 @@ const deletedExportSlip = catchAsync(async (req, res) => {
   });
 });
 
+const updatedStatusExportSlip = catchAsync(async (req, res) => {
+  const { exportSlipId } = req.params;
+  const { status } = req.body;
+
+  const exportSlip = await ExportSlip.findById(exportSlipId);
+
+  if (!exportSlip) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Export slip not found",
+      code: httpStatus.NOT_FOUND,
+    });
+  }
+
+  exportSlip.status = status;
+  await exportSlip.save();
+
+  return res.status(httpStatus.OK).json({
+    message: "Export slip updated successfully",
+    code: httpStatus.OK,
+    data: {
+      exportSlip,
+    },
+  });
+});
+
 module.exports = {
   createdExportSlip,
   getExportSlipById,
   deletedExportSlip,
+  updatedStatusExportSlip,
 };

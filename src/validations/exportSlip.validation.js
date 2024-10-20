@@ -192,8 +192,34 @@ const deletedExportSlip = {
   }),
 }
 
+const updatedStatusExportSlip = {
+  params: joi.object({
+    exportSlipId: joi.string()
+      .required()
+      .custom(ObjectId)
+      .messages({
+        "string.base": "Export slip id must be a string",
+        "string.empty": "Export slip id cannot be an empty",
+        "any.required": "Export slip id is required",
+        "any.custom": "Export slip id must be avalid id",
+      }),
+  }),
+  body: joi.object({
+    status: joi.string()
+      .valid("PENDING", "CONFIRMED", "REJECTED", "DONE", "RETURNED")
+      .required()
+      .messages({
+        "string.base": "Status must be a string",
+        "string.empty": "Status cannot be an empty",
+        "any.required": "Status is required",
+        "any.only": "Status must be PENDING, CONFIRMED, REJECTED, DONE or RETURNED",
+      }),
+  }),
+};
+
 module.exports = {
   createdExportSlip,
   getExportSlipById,
   deletedExportSlip,
+  updatedStatusExportSlip,
 }
