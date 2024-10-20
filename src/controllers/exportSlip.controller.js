@@ -229,10 +229,64 @@ const getExportSlipByType = catchAsync(async (req, res) => {
     },
   });
 });
+
+const searchExportSlips = catchAsync(async (req, res) => {
+  const { exportSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
+
+  const query = { $or: [] };
+
+  if (exportSlipCode) {
+    query.$or.push({ exportSlipCode: { $regex: exportSlipCode, $options: 'i' } });
+  }
+
+  if (providerId) {
+    query.$or.push({ providerId });
+  }
+
+  if (agencyId) {
+    query.$or.push({ agencyId });
+  }
+
+  if (customerId) {
+    query.$or.push({ customerId });
+  }
+
+  if (status) {
+    query.$or.push({ status: { $regex: status, $options: 'i' } });
+  }
+
+  if (timeStart && timeEnd) {
+    query.$or.push({ createdAt: { $gte: timeStart, $lte: timeEnd } });
+  }
+
+  //neu khong co dieu kien tim kiem thi xoa $or de tranh truy van trong, khi do se tra ve tat ca cac phieu nhap
+  if (query.$or.length === 0) {
+    delete query.$or;
+  }
+  const skip = (+page - 1) * +limit;
+
+  const exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
+
+  const totalResult = exportSlips.length;
+
+  return res.status(httpStatus.OK).json({
+    message: "Get ExportSlips successfully",
+    code: httpStatus.OK,
+    data: {
+      exportSlips,
+      limit: +limit,
+      page: +page,
+      totalResult,
+      totalPage: Math.ceil(totalResult / +limit),
+    },
+  });
+});
+
 module.exports = {
   createdExportSlip,
   getExportSlipById,
   deletedExportSlip,
   updatedStatusExportSlip,
   getExportSlipByType,
+  searchExportSlips,
 };
