@@ -8,5 +8,7 @@ const { auth } = require('@/middlewares/auth.middleware');
 const exportSlipRouter = express.Router();
 
 exportSlipRouter.post('/createExportSlip', auth, validate(exportSlipValidation.createdExportSlip), exportSlipController.createdExportSlip);
+// exportSlipRouter.get('/searchImportSlips', auth, validate(importSlipValidation.searchImportSlips), importSlipController.searchImportSlips);
+exportSlipRouter.get('/:exportSlipId', auth, validate(exportSlipValidation.getExportSlipById), exportSlipController.getExportSlipById);
 
 module.exports = exportSlipRouter;

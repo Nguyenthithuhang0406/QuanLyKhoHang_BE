@@ -100,6 +100,54 @@ const createdExportSlip = catchAsync(async (req, res) => {
   });
 });
 
+const getExportSlipById = catchAsync(async (req, res) => {
+  const { exportSlipId } = req.params;
+
+  let exportSlip = await ExportSlip.findById(exportSlipId);
+
+  if (!exportSlip) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      message: "Export slip not found",
+      code: httpStatus.NOT_FOUND,
+    });
+  }
+
+  if (exportSlip.type === "Provider") {
+    exportSlip = await ExportSlip.findById(exportSlipId)
+      .populate("providerId", "providerCode providerName providerAddress providerPhone")
+      .populate("userId", "fullName")
+      .populate("userEditStatus", "fullName")
+      .populate("contracts", "contractContent contractMedia")
+      .populate("products.productId", "productCode productName productDVT productPrice");
+
+  } else {
+    if (exportSlip.type === "Agency") {
+      exportSlip = await ExportSlip.findById(exportSlipId)
+        .populate("agencyId", "agencyCode agencyName agencyAddress agencyPhone")
+        .populate("userId", "fullName")
+        .populate("userEditStatus", "fullName")
+        .populate("contracts", "contractContent contractMedia")
+        .populate("products.productId", "productCode productName productDVT productPrice");
+    } else {
+      exportSlip = await ExportSlip.findById(exportSlipId)
+        .populate("customerId", "customerName customerAddress customerPhone")
+        .populate("userId", "fullName")
+        .populate("userEditStatus", "fullName")
+        .populate("contracts", "contractContent contractMedia")
+        .populate("products.productId", "productCode productName productDVT productPrice");
+    }
+  }
+
+  return res.status(httpStatus.OK).json({
+    message: "Import slip found",
+    code: httpStatus.OK,
+    data: {
+      exportSlip,
+    },
+  });
+});
+
 module.exports = {
   createdExportSlip,
+  getExportSlipById,
 };
