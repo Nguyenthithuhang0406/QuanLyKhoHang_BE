@@ -5,7 +5,7 @@ const catchAsync = require("@/utils/catchAsync");
 const ApiError = require("@/utils/apiError");
 
 const createdProduct = catchAsync(async (req, res) => {
-  const { productCode, productName, productGroup, productMedia, fileUrls, productDescription, productDVT, productPrice } = req.body;
+  const { productCode, productName, productGroup, fileUrls, productDescription, productDVT, productPrice } = req.body;
 
   const existingProduct = await Product.findOne({ productCode: productCode });
 
