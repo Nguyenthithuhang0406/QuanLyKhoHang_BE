@@ -181,10 +181,12 @@ const searchProduct = {
         'string.base': 'Sort by must be a string',
       }),
     productCode: joi.string()
+      .optional()
       .messages({
         'string.base': 'Product code must be a string',
       }),
     productName: joi.string()
+      .optional()
       .messages({
         'string.base': 'Product name must be a string',
       }),
