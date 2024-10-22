@@ -112,7 +112,7 @@ const getProducts = catchAsync(async (req, res) => {
 
   const products = await Product.find().limit(+limit).skip(skip).sort(sort);
 
-  const totalResult = products.length;
+  const totalResult = await Product.countDocuments(query);
 
   return res.status(httpStatus.OK).json({
     message: "Get products successfully",
