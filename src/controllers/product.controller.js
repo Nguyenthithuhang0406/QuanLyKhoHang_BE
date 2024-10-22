@@ -134,26 +134,25 @@ const searchProduct = catchAsync(async (req, res) => {
   const [field, value] = sortBy.split(':');
   const sort = { [field]: value === 'desc' ? -1 : 1 };
 
-  if (productCode && !productName) {
-    query.productCode = { $regex: productCode, $options: 'i' };
+  query.$or = [];
+
+  if (productCode) {
+    query.$or.push({ productCode: { $regex: productCode, $options: "i" } });
   }
 
-  if (productName && !productCode) {
-    query.productName = { $regex: productName, $options: 'i' };
+  if (productName) {
+    query.$or.push({ productName: { $regex: productName, $options: "i" } });
   }
 
-  if(productCode && productName) {
-    query.$or = [
-      { productCode: { $regex: productCode, $options: 'i' } },
-      { productName: { $regex: productName, $options: 'i' } },
-    ];
+  if (query.$or.length === 0) {
+    delete query.$or;
   }
 
   const skip = (+page - 1) * +limit;
 
   const products = await Product.find(query).limit(+limit).skip(skip).sort(sort);
 
-  const totalResult = products.length;
+  const totalResult = await Product.countDocuments(query);
 
   return res.status(httpStatus.OK).json({
     message: "Get products successfully",
