@@ -182,11 +182,13 @@ const searchProduct = {
       }),
     productCode: joi.string()
       .optional()
+      .allow('')
       .messages({
         'string.base': 'Product code must be a string',
       }),
     productName: joi.string()
       .optional()
+      .allow('')
       .messages({
         'string.base': 'Product name must be a string',
       }),
