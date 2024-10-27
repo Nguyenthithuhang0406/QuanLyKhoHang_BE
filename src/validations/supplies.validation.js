@@ -201,18 +201,26 @@ const searchSupply = {
         'number.min': 'Page must be greater than or equal to 1',
       }),
     code: Joi.string()
+      .allow('')
+      .optional()
       .messages({
         'string.base': 'Code must be a string',
       }),
     name: Joi.string()
+      .optional()
+      .allow('')
       .messages({
         'string.base': 'Name must be a string',
       }),
     phone: Joi.string()
+      .optional()
+      .allow('')
       .messages({
         'string.base': 'Phone must be a string',
       }),
     type: Joi.string()
+      .optional()
+      .allow('')
       .valid('agency', 'provider')
       .messages({
         'string.base': 'Type must be a string',
