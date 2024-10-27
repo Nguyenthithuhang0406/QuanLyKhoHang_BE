@@ -40,7 +40,7 @@ const createdSupply = {
         'any.required': 'Phone is required',
       }),
     email: Joi.string()
-      .email()
+      // .email()
       .required()
       .messages({
         'string.base': 'Email must be a string',
