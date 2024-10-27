@@ -151,8 +151,6 @@ const getSupplyById = {
         'any.required': 'Supply id is required',
         'any.custom': 'Supply id must be a valid id',
       }),
-  }),
-  body: Joi.object({
     type: Joi.string()
       .valid('agency', 'provider')
       .required()

@@ -152,9 +152,8 @@ const deletedSupply = catchAsync(async (req, res) => {
 });
 
 const getSupplyById = catchAsync(async (req, res) => {
-  const { supplyId } = req.params;
-  const { type } = req.body;
-
+  const { supplyId, type } = req.params;
+  
   if (type === 'agency') {
     const agency = await Agency.findById({ _id: supplyId });
 
