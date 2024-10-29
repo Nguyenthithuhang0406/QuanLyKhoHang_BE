@@ -14,6 +14,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
+    importPrice
   } = req.body;
 
   const listProductsBody = [];
@@ -77,6 +78,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
+    importPrice
   });
 
   if (type === "Provider") {

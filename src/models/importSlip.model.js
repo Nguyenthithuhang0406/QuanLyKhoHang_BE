@@ -44,6 +44,10 @@ const importSlipSchema = new Schema({
     enum: ["Agency", "Provider", "Customer"],
     required: true,
   },
+  importPrice: {
+    type: String,
+    required: true,
+  },
   products: [{
     productId: {
       type: mongoose.Schema.Types.ObjectId,

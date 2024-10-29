@@ -28,6 +28,14 @@ const createdImportSlip = {
         "any.required": "User id is required",
         "any.custom": "User id must be avalid id",
       }),
+    importPrice: joi.string()
+      .required()
+      .messages({
+        "string.base": "Import price must be a string",
+        "string.empty": "Import price cannot be an empty",
+        "any.required": "Import price is required",
+      }),
+    
     status: joi.string()
       .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
       .required()
