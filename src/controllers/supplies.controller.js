@@ -223,7 +223,9 @@ const getSupplies = catchAsync(async (req, res) => {
   agencies = await Agency.find().limit(+limit).skip(skip).sort({ agencyName: 1 });
   providers = await Provider.find().limit(+limit).skip(skip).sort({ providerName: 1 });
 
-  const totalResult = await Agency.countDocuments() + await Provider.countDocuments();
+  const totalAgency = await Agency.countDocuments();
+  const totalProvider = await Provider.countDocuments();
+  const totalResult = totalAgency + totalProvider;
 
   return res.status(httpStatus.OK).json({
     message: "Supplies found",
