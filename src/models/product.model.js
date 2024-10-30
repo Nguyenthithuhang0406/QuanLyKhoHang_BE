@@ -32,14 +32,17 @@ const productSchema = new Schema({
   productQuantityImport: {
     //số lượng đã nhập
     type: Number,
+    default: 0,
   },
   productQuantityExport: {
     //số lượng đã bán
     type: Number,
+    default: 0,
   },
   productQuantityRemaining: {
     //số lượng còn lại
     type: Number,
+    default: 0,
   },
   dateOfManufacture: {
     //ngay san xuat
