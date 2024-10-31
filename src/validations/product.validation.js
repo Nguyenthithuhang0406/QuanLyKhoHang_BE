@@ -147,7 +147,7 @@ const getProducts = {
       }),
     limit: joi.number()
       .min(1)
-      .max(20)
+      .max(100)
       .messages({
         'number.base': 'Limit must be a number',
         'number.min': 'Limit must be greater than or equal to 1',
