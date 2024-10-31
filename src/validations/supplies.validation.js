@@ -187,10 +187,10 @@ const getSupplies = {
 const searchSupply = {
   query: Joi.object({
     limit: Joi.number()
-      .max(10)
+      .max(100)
       .messages({
         'number.base': 'Limit must be a number',
-        'number.max': 'Limit must be less than or equal to 20',
+        'number.max': 'Limit must be less than or equal to 100',
       }),
     page: Joi.number()
       .min(1)
