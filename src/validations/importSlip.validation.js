@@ -260,12 +260,14 @@ const searchImportSlips = {
   query: joi.object({
     importSlipCode: joi.string()
       .optional()
+      .allow("")
       .messages({
         "string.base": "Import slip code must be a string",
         "string.empty": "Import slip code cannot be an empty",
       }),
     providerId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Provider id must be a string",
@@ -274,6 +276,7 @@ const searchImportSlips = {
       }),
     agencyId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Agency id must be a string",
@@ -282,6 +285,7 @@ const searchImportSlips = {
       }),
     customerId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Customer id must be a string",
@@ -290,17 +294,20 @@ const searchImportSlips = {
       }),
     timeStart: joi.date()
       .optional()
+      .allow("")
       .messages({
         "date.base": "Time start must be a date",
       }),
     timeEnd: joi.date()
       .optional()
+      .allow("")
       .messages({
         "date.base": "Time end must be a date",
       }),
     status: joi.string()
       .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
       .optional()
+      .allow("")
       .messages({
         "string.base": "Status must be a string",
         "string.empty": "Status cannot be an empty",
@@ -308,13 +315,23 @@ const searchImportSlips = {
       }),
     limit: joi.number()
       .optional()
+      .allow("")
       .messages({
         "number.base": "Limit must be a number",
       }),
     page: joi.number()
       .optional()
+      .allow("")
       .messages({
         "number.base": "Page must be a number",
+      }),
+    type: joi.string()
+      .valid("Agency", "Provider", "Customer")
+      .required()
+      .messages({
+        "string.base": "Type must be a string",
+        "string.empty": "Type cannot be an empty",
+        "any.only": "Type must be AGENCY, PROVIDER or CUSTOMER",
       }),
   }),
 }

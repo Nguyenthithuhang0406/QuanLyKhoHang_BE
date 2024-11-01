@@ -238,41 +238,52 @@ const getImportSlipByType = catchAsync(async (req, res) => {
 });
 
 const searchImportSlips = catchAsync(async (req, res) => {
-  const { importSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
+  const { importSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd, type } = req.query;
 
-  const query = { $or: [] };
+  const query = { };
 
   if (importSlipCode) {
-    query.$or.push({ importSlipCode: { $regex: importSlipCode, $options: 'i' } });
+    query.importSlipCode = { $regex: importSlipCode, $options: 'i' };
+  }
+
+  if (type) {
+    query.type = type;
   }
 
   if (providerId) {
-    query.$or.push({ providerId });
+    query.providerId = providerId;
   }
 
   if (agencyId) {
-    query.$or.push({ agencyId });
+    query.agencyId = agencyId;
   }
 
   if (customerId) {
-    query.$or.push({ customerId });
+    query.customerId = customerId;
   }
 
   if (status) {
-    query.$or.push({ status: { $regex: status, $options: 'i' } });
+    query.status = status;
   }
 
   if (timeStart && timeEnd) {
-    query.$or.push({ createdAt: { $gte: timeStart, $lte: timeEnd } });
+    query.createdAt = { $gte: new Date(timeStart), $lte: new Date(timeEnd) };
   }
 
   //neu khong co dieu kien tim kiem thi xoa $or de tranh truy van trong, khi do se tra ve tat ca cac phieu nhap
-  if (query.$or.length === 0) {
-    delete query.$or;
-  }
+ 
   const skip = (+page - 1) * +limit;
 
-  const importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
+  let importSlips;
+  if (type === "Provider") {
+    importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("providerId", "providerName").sort({ providerName: 1 });
+  } else {
+    if (type === "Agency") {
+      importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+    } else {
+      importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("customerId", "customerName").sort({ customerName: 1 });
+    }
+  }
 
   const totalResult = importSlips.length;
 
