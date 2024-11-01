@@ -169,6 +169,13 @@ const createdImportSlip = {
         "string.base": "Reason must be a string",
         "string.empty": "Reason cannot be an empty",
       }),
+    importPrice: joi.string()
+      .required()
+      .messages({
+        "string.base": "Import price must be a string",
+        "string.empty": "Import price cannot be an empty",
+        "any.required": "Import price is required",
+      }),
   })
 }
 
