@@ -21,7 +21,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
   if (products && products.length > 0) {
     for (const product of products) {
       listProductsBody.push({
-        productId: product._id,
+        productId: product.productId,
         quantity: product.quantity,
         discount: product.discount
       });

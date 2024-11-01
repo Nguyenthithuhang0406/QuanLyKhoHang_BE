@@ -47,7 +47,7 @@ const createdImportSlip = {
       }),
     products: joi.array()
       .items(joi.object({
-        _id: joi.string()
+        productId: joi.string()
           .required()
           .custom(ObjectId)
           .messages({
