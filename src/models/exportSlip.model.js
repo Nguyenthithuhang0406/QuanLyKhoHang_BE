@@ -45,6 +45,11 @@ const exportSlipSchema = new Schema({
     enum: ["Agency", "Provider", "Customer"],
     required: true,
   },
+  //gia xuat
+  exportPrice: {
+    type: String,
+    required: true,
+  },
   products: [{
     productId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -71,6 +76,10 @@ const exportSlipSchema = new Schema({
   },
   reason: {
     type: String,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 }, {
   timestamps: true,

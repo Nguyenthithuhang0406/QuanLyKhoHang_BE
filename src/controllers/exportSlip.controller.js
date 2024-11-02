@@ -14,6 +14,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
+    exportPrice
   } = req.body;
 
   const listProductsBody = [];
@@ -77,6 +78,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
+    exportPrice
   });
 
   if (type === "Provider") {
@@ -220,7 +222,7 @@ const getExportSlipByType = catchAsync(async (req, res) => {
     });
   };
 
-  const totalResult = exportSlip.length;
+  const totalResult = await ExportSlip.countDocuments({ type });
 
   return res.status(httpStatus.OK).json({
     message: "Get exportSlip successfully",
@@ -236,43 +238,54 @@ const getExportSlipByType = catchAsync(async (req, res) => {
 });
 
 const searchExportSlips = catchAsync(async (req, res) => {
-  const { exportSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd } = req.query;
+  const { exportSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd, type } = req.query;
 
-  const query = { $or: [] };
+  const query = {};
 
   if (exportSlipCode) {
-    query.$or.push({ exportSlipCode: { $regex: exportSlipCode, $options: 'i' } });
+    query.exportSlipCode = { $regex: exportSlipCode, $options: 'i' };
+  }
+
+  if(type) {
+    query.type = type;
   }
 
   if (providerId) {
-    query.$or.push({ providerId });
+    query.providerId = providerId;
   }
 
   if (agencyId) {
-    query.$or.push({ agencyId });
+    query.agencyId = agencyId;
   }
 
   if (customerId) {
-    query.$or.push({ customerId });
+    query.customerId = customerId;
   }
 
   if (status) {
-    query.$or.push({ status: { $regex: status, $options: 'i' } });
+    query.status = status;
   }
 
   if (timeStart && timeEnd) {
-    query.$or.push({ createdAt: { $gte: timeStart, $lte: timeEnd } });
+    query.createdAt = { $gte: new Date(timeStart), $lte: new Date(timeEnd) };
   }
 
-  //neu khong co dieu kien tim kiem thi xoa $or de tranh truy van trong, khi do se tra ve tat ca cac phieu nhap
-  if (query.$or.length === 0) {
-    delete query.$or;
-  }
   const skip = (+page - 1) * +limit;
 
-  const exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 });
+  let exportSlips;
+  if (type === "Provider") {
+     exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("providerId", "providerName").sort({ providerName: 1 });
+  }
 
-  const totalResult = exportSlips.length;
+  if (type === "Agency") {
+    exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+  }
+
+  if (type === "Customer") {
+    exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("customerId", "customerName").sort({ customerName: 1 });
+  }
+
+  const totalResult = await ExportSlip.countDocuments(query);
 
   return res.status(httpStatus.OK).json({
     message: "Get ExportSlips successfully",

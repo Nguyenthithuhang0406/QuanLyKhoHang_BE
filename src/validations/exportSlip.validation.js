@@ -37,9 +37,16 @@ const createdExportSlip = {
         "any.required": "Status is required",
         "any.only": "Status must be PENDING, CONFIRMED or REJECTED",
       }),
+    exportPrice: joi.string()
+      .required()
+      .messages({
+        "string.base": "Export price must be a string",
+        "string.empty": "Export price cannot be an empty",
+        "any.required": "Export price is required",
+      }),
     products: joi.array()
       .items(joi.object({
-        _id: joi.string()
+        productId: joi.string()
           .required()
           .custom(ObjectId)
           .messages({
@@ -245,12 +252,14 @@ const searchExportSlips = {
   query: joi.object({
     exportSlipCode: joi.string()
       .optional()
+      .allow("")
       .messages({
         "string.base": "Export slip code must be a string",
         "string.empty": "Export slip code cannot be an empty",
       }),
     providerId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Provider id must be a string",
@@ -259,6 +268,7 @@ const searchExportSlips = {
       }),
     agencyId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Agency id must be a string",
@@ -267,6 +277,7 @@ const searchExportSlips = {
       }),
     customerId: joi.string()
       .optional()
+      .allow("")
       .custom(ObjectId)
       .messages({
         "string.base": "Customer id must be a string",
@@ -275,17 +286,20 @@ const searchExportSlips = {
       }),
     timeStart: joi.date()
       .optional()
+      .allow("")
       .messages({
         "date.base": "Time start must be a date",
       }),
     timeEnd: joi.date()
       .optional()
+      .allow("")
       .messages({
         "date.base": "Time end must be a date",
       }),
     status: joi.string()
       .valid("PENDING", "CONFIRMED", "REJECTED", "DONE")
       .optional()
+      .allow("")
       .messages({
         "string.base": "Status must be a string",
         "string.empty": "Status cannot be an empty",
@@ -293,13 +307,23 @@ const searchExportSlips = {
       }),
     limit: joi.number()
       .optional()
+      .allow("")
       .messages({
         "number.base": "Limit must be a number",
       }),
     page: joi.number()
       .optional()
+      .allow("")
       .messages({
         "number.base": "Page must be a number",
+      }),
+    type: joi.string()
+      .valid("Agency", "Provider", "Customer")
+      .required()
+      .messages({
+        "string.base": "Type must be a string",
+        "string.empty": "Type cannot be an empty",
+        "any.only": "Type must be AGENCY, PROVIDER or CUSTOMER",
       }),
   }),
 }
