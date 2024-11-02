@@ -222,7 +222,7 @@ const getImportSlipByType = catchAsync(async (req, res) => {
     });
   };
 
-  const totalResult = importSlip.length;
+  const totalResult = await ImportSlip.countDocuments({ type });
 
   return res.status(httpStatus.OK).json({
     message: "Get importSlip successfully",
@@ -285,7 +285,7 @@ const searchImportSlips = catchAsync(async (req, res) => {
     }
   }
 
-  const totalResult = importSlips.length;
+  const totalResult = await ImportSlip.countDocuments(query);
 
   return res.status(httpStatus.OK).json({
     message: "Get importSlips successfully",
