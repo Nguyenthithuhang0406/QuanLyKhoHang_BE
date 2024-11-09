@@ -14,7 +14,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
-    importPrice
+    importPrice,
   } = req.body;
 
   const listProductsBody = [];
@@ -23,7 +23,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
       listProductsBody.push({
         productId: product.productId,
         quantity: product.quantity,
-        discount: product.discount
+        discount: product.discount,
       });
     }
   }
@@ -32,16 +32,17 @@ const createdImportSlip = catchAsync(async (req, res) => {
   if (newProducts && newProducts.length > 0) {
     for (const product of newProducts) {
       //kiểm tra xem product đã tồn tại chưa
-      const existingProduct = await Product.findOne({ productName: product.productName });
+      const existingProduct = await Product.findOne({
+        productName: product.productName,
+      });
 
       if (existingProduct) {
         createNewProducts.push({
           productId: existingProduct._id,
           quantity: product.quantity,
-          discount: product.discount
+          discount: product.discount,
         });
       } else {
-
         //Nếu chưa tồn tại thì tạo mới
         const newProduct = new Product({
           productCode: product.productCode,
@@ -57,7 +58,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
         createNewProducts.push({
           productId: newProduct._id,
           quantity: product.quantity,
-          discount: product.discount
+          discount: product.discount,
         });
       }
     }
@@ -65,10 +66,11 @@ const createdImportSlip = catchAsync(async (req, res) => {
 
   const allProducts = [...listProductsBody, ...createNewProducts];
 
-  const uniqueProducts = Array.from(new Set(allProducts.map(p => p.productId.toString())))
-    .map(productId => {
-      return allProducts.find(p => p.productId.toString() === productId);
-    });
+  const uniqueProducts = Array.from(
+    new Set(allProducts.map((p) => p.productId.toString()))
+  ).map((productId) => {
+    return allProducts.find((p) => p.productId.toString() === productId);
+  });
 
   const importSlip = new ImportSlip({
     importSlipCode,
@@ -78,7 +80,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
-    importPrice
+    importPrice,
   });
 
   if (type === "Provider") {
@@ -89,7 +91,7 @@ const createdImportSlip = catchAsync(async (req, res) => {
     } else {
       importSlip.customerId = providerId;
     }
-  };
+  }
 
   await importSlip.save();
 
@@ -116,13 +118,18 @@ const getImportSlipById = catchAsync(async (req, res) => {
 
   if (importSlip.type === "Provider") {
     importSlip = await ImportSlip.findById(importSlipId)
-      .populate("providerId", "providerCode providerName providerAddress providerPhone")
+      .populate(
+        "providerId",
+        "providerCode providerName providerAddress providerPhone"
+      )
       .populate("userId", "fullName")
       .populate("userEditStatus", "fullName")
       .populate("contracts", "contractContent contractMedia")
-      .populate("products.productId", "productCode productName productDVT productPrice")
+      .populate(
+        "products.productId",
+        "productCode productName productDVT productPrice"
+      )
       .populate("userEditStatus", "fullName userName email phoneNumber role");
-
   } else {
     if (importSlip.type === "Agency") {
       importSlip = await ImportSlip.findById(importSlipId)
@@ -130,7 +137,10 @@ const getImportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate(
+          "products.productId",
+          "productCode productName productDVT productPrice"
+        )
         .populate("userEditStatus", "fullName userName email phoneNumber role");
     } else {
       importSlip = await ImportSlip.findById(importSlipId)
@@ -138,7 +148,10 @@ const getImportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate(
+          "products.productId",
+          "productCode productName productDVT productPrice"
+        )
         .populate("userEditStatus", "fullName userName email phoneNumber role");
     }
   }
@@ -188,6 +201,20 @@ const updatedStatusImportSlip = catchAsync(async (req, res) => {
   importSlip.userEditStatus = userId;
   await importSlip.save();
 
+  if (status === "DONE") {
+    for (const product of importSlip.products) {
+      const existingProduct = await Product.findById(product.productId);
+      if (!existingProduct) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          message: "Product not found",
+          code: httpStatus.NOT_FOUND,
+        });
+      }
+      existingProduct.productQuantityImport += product.quantity;
+      existingProduct.productQuantityRemaining += product.quantity;
+      await existingProduct.save();
+    }
+  }
   return res.status(httpStatus.OK).json({
     message: "Import slip updated successfully",
     code: httpStatus.OK,
@@ -204,15 +231,27 @@ const getImportSlipByType = catchAsync(async (req, res) => {
   let importSlip;
 
   if (type === "Provider") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("providerId", "providerName").sort({ providerName: 1 });
-  };
+    importSlip = await ImportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("providerId", "providerName")
+      .sort({ providerName: 1 });
+  }
 
   if (type === "Agency") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+    importSlip = await ImportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("agencyId", "agencyName")
+      .sort({ agencyName: 1 });
   }
 
   if (type === "Customer") {
-    importSlip = await ImportSlip.find({ type }).limit(+limit).skip(skip).populate("customerId", "customerName").sort({ customerName: 1 });
+    importSlip = await ImportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("customerId", "customerName")
+      .sort({ customerName: 1 });
   }
 
   if (!importSlip) {
@@ -220,7 +259,7 @@ const getImportSlipByType = catchAsync(async (req, res) => {
       message: "Import slip not found",
       code: httpStatus.NOT_FOUND,
     });
-  };
+  }
 
   const totalResult = await ImportSlip.countDocuments({ type });
 
@@ -238,12 +277,23 @@ const getImportSlipByType = catchAsync(async (req, res) => {
 });
 
 const searchImportSlips = catchAsync(async (req, res) => {
-  const { importSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd, type } = req.query;
+  const {
+    importSlipCode,
+    providerId,
+    agencyId,
+    customerId,
+    limit = 10,
+    page = 1,
+    status,
+    timeStart,
+    timeEnd,
+    type,
+  } = req.query;
 
-  const query = { };
+  const query = {};
 
   if (importSlipCode) {
-    query.importSlipCode = { $regex: importSlipCode, $options: 'i' };
+    query.importSlipCode = { $regex: importSlipCode, $options: "i" };
   }
 
   if (type) {
@@ -271,17 +321,32 @@ const searchImportSlips = catchAsync(async (req, res) => {
   }
 
   //neu khong co dieu kien tim kiem thi xoa $or de tranh truy van trong, khi do se tra ve tat ca cac phieu nhap
- 
+
   const skip = (+page - 1) * +limit;
 
   let importSlips;
   if (type === "Provider") {
-    importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("providerId", "providerName").sort({ providerName: 1 });
+    importSlips = await ImportSlip.find(query)
+      .limit(+limit)
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .populate("providerId", "providerName")
+      .sort({ providerName: 1 });
   } else {
     if (type === "Agency") {
-      importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+      importSlips = await ImportSlip.find(query)
+        .limit(+limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .populate("agencyId", "agencyName")
+        .sort({ agencyName: 1 });
     } else {
-      importSlips = await ImportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("customerId", "customerName").sort({ customerName: 1 });
+      importSlips = await ImportSlip.find(query)
+        .limit(+limit)
+        .skip(skip)
+        .sort({ createdAt: -1 })
+        .populate("customerId", "customerName")
+        .sort({ customerName: 1 });
     }
   }
 

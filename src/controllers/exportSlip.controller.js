@@ -14,7 +14,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
-    exportPrice
+    exportPrice,
   } = req.body;
 
   const listProductsBody = [];
@@ -23,7 +23,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
       listProductsBody.push({
         productId: product.productId,
         quantity: product.quantity,
-        discount: product.discount
+        discount: product.discount,
       });
     }
   }
@@ -32,16 +32,17 @@ const createdExportSlip = catchAsync(async (req, res) => {
   if (newProducts && newProducts.length > 0) {
     for (const product of newProducts) {
       //kiểm tra xem product đã tồn tại chưa
-      const existingProduct = await Product.findOne({ productName: product.productName });
+      const existingProduct = await Product.findOne({
+        productName: product.productName,
+      });
 
       if (existingProduct) {
         createNewProducts.push({
           productId: existingProduct._id,
           quantity: product.quantity,
-          discount: product.discount
+          discount: product.discount,
         });
       } else {
-
         //Nếu chưa tồn tại thì tạo mới
         const newProduct = new Product({
           productCode: product.productCode,
@@ -57,7 +58,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
         createNewProducts.push({
           productId: newProduct._id,
           quantity: product.quantity,
-          discount: product.discount
+          discount: product.discount,
         });
       }
     }
@@ -65,10 +66,11 @@ const createdExportSlip = catchAsync(async (req, res) => {
 
   const allProducts = [...listProductsBody, ...createNewProducts];
 
-  const uniqueProducts = Array.from(new Set(allProducts.map(p => p.productId.toString())))
-    .map(productId => {
-      return allProducts.find(p => p.productId.toString() === productId);
-    });
+  const uniqueProducts = Array.from(
+    new Set(allProducts.map((p) => p.productId.toString()))
+  ).map((productId) => {
+    return allProducts.find((p) => p.productId.toString() === productId);
+  });
 
   const exportSlip = new ExportSlip({
     exportSlipCode,
@@ -78,7 +80,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
     contracts,
     type,
     reason,
-    exportPrice
+    exportPrice,
   });
 
   if (type === "Provider") {
@@ -89,7 +91,7 @@ const createdExportSlip = catchAsync(async (req, res) => {
     } else {
       exportSlip.customerId = providerId;
     }
-  };
+  }
 
   await exportSlip.save();
 
@@ -116,13 +118,18 @@ const getExportSlipById = catchAsync(async (req, res) => {
 
   if (exportSlip.type === "Provider") {
     exportSlip = await ExportSlip.findById(exportSlipId)
-      .populate("providerId", "providerCode providerName providerAddress providerPhone")
+      .populate(
+        "providerId",
+        "providerCode providerName providerAddress providerPhone"
+      )
       .populate("userId", "fullName")
       .populate("userEditStatus", "fullName")
       .populate("contracts", "contractContent contractMedia")
-      .populate("products.productId", "productCode productName productDVT productPrice")
+      .populate(
+        "products.productId",
+        "productCode productName productDVT productPrice"
+      )
       .populate("userEditStatus", "fullName userName email phoneNumber role");
-
   } else {
     if (exportSlip.type === "Agency") {
       exportSlip = await ExportSlip.findById(exportSlipId)
@@ -130,7 +137,10 @@ const getExportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate(
+          "products.productId",
+          "productCode productName productDVT productPrice"
+        )
         .populate("userEditStatus", "fullName userName email phoneNumber role");
     } else {
       exportSlip = await ExportSlip.findById(exportSlipId)
@@ -138,7 +148,10 @@ const getExportSlipById = catchAsync(async (req, res) => {
         .populate("userId", "fullName")
         .populate("userEditStatus", "fullName")
         .populate("contracts", "contractContent contractMedia")
-        .populate("products.productId", "productCode productName productDVT productPrice")
+        .populate(
+          "products.productId",
+          "productCode productName productDVT productPrice"
+        )
         .populate("userEditStatus", "fullName userName email phoneNumber role");
     }
   }
@@ -188,6 +201,20 @@ const updatedStatusExportSlip = catchAsync(async (req, res) => {
   exportSlip.userEditStatus = userId;
   await exportSlip.save();
 
+  if (status === "DONE") {
+    for (const product of exportSlip.products) {
+      const existingProduct = await Product.findById(product.productId);
+      if (!existingProduct) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          message: "Product not found",
+          code: httpStatus.NOT_FOUND,
+        });
+      }
+      existingProduct.productQuantityExport += product.quantity;
+      existingProduct.productQuantityRemaining -= product.quantity;
+      await existingProduct.save();
+    }
+  }
   return res.status(httpStatus.OK).json({
     message: "Export slip updated successfully",
     code: httpStatus.OK,
@@ -204,15 +231,27 @@ const getExportSlipByType = catchAsync(async (req, res) => {
   let exportSlip;
 
   if (type === "Provider") {
-    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("providerId", "providerName").sort({ providerName: 1 });
-  };
+    exportSlip = await ExportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("providerId", "providerName")
+      .sort({ providerName: 1 });
+  }
 
   if (type === "Agency") {
-    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+    exportSlip = await ExportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("agencyId", "agencyName")
+      .sort({ agencyName: 1 });
   }
 
   if (type === "Customer") {
-    exportSlip = await ExportSlip.find({ type }).limit(+limit).skip(skip).populate("customerId", "customerName").sort({ customerName: 1 });
+    exportSlip = await ExportSlip.find({ type })
+      .limit(+limit)
+      .skip(skip)
+      .populate("customerId", "customerName")
+      .sort({ customerName: 1 });
   }
 
   if (!exportSlip) {
@@ -220,7 +259,7 @@ const getExportSlipByType = catchAsync(async (req, res) => {
       message: "Export slip not found",
       code: httpStatus.NOT_FOUND,
     });
-  };
+  }
 
   const totalResult = await ExportSlip.countDocuments({ type });
 
@@ -238,15 +277,26 @@ const getExportSlipByType = catchAsync(async (req, res) => {
 });
 
 const searchExportSlips = catchAsync(async (req, res) => {
-  const { exportSlipCode, providerId, agencyId, customerId, limit = 10, page = 1, status, timeStart, timeEnd, type } = req.query;
+  const {
+    exportSlipCode,
+    providerId,
+    agencyId,
+    customerId,
+    limit = 10,
+    page = 1,
+    status,
+    timeStart,
+    timeEnd,
+    type,
+  } = req.query;
 
   const query = {};
 
   if (exportSlipCode) {
-    query.exportSlipCode = { $regex: exportSlipCode, $options: 'i' };
+    query.exportSlipCode = { $regex: exportSlipCode, $options: "i" };
   }
 
-  if(type) {
+  if (type) {
     query.type = type;
   }
 
@@ -274,15 +324,30 @@ const searchExportSlips = catchAsync(async (req, res) => {
 
   let exportSlips;
   if (type === "Provider") {
-     exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("providerId", "providerName").sort({ providerName: 1 });
+    exportSlips = await ExportSlip.find(query)
+      .limit(+limit)
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .populate("providerId", "providerName")
+      .sort({ providerName: 1 });
   }
 
   if (type === "Agency") {
-    exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("agencyId", "agencyName").sort({ agencyName: 1 });
+    exportSlips = await ExportSlip.find(query)
+      .limit(+limit)
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .populate("agencyId", "agencyName")
+      .sort({ agencyName: 1 });
   }
 
   if (type === "Customer") {
-    exportSlips = await ExportSlip.find(query).limit(+limit).skip(skip).sort({ createdAt: -1 }).populate("customerId", "customerName").sort({ customerName: 1 });
+    exportSlips = await ExportSlip.find(query)
+      .limit(+limit)
+      .skip(skip)
+      .sort({ createdAt: -1 })
+      .populate("customerId", "customerName")
+      .sort({ customerName: 1 });
   }
 
   const totalResult = await ExportSlip.countDocuments(query);
