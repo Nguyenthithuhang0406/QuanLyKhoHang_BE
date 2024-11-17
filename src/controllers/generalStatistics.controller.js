@@ -34,7 +34,10 @@ const importExportRatio = catchAsync(async (req, res) => {
     });
   });
 
+  const countSlip = importSlips.length + exportSlips.length;
+
   return res.status(httpStatus.OK).json({
+    countSlip,
     importQuantity,
     exportQuantity,
     importExportRatio: exportQuantity / importQuantity,
@@ -69,7 +72,10 @@ const exportWithSource = catchAsync(async (req, res) => {
     });
   });
 
+  const countSlip = exportSlips.length;
+
   return res.status(httpStatus.OK).json({
+    countSlip,
     exportWithProvider,
     exportWithAgency,
     exportWithCustomer,
@@ -104,7 +110,9 @@ const importWithSource = catchAsync(async (req, res) => {
     });
   });
 
+  const countSlip = importSlips.length;
   return res.status(httpStatus.OK).json({
+    countSlip,
     importWithProvider,
     importWithAgency,
     importWithCustomer,
