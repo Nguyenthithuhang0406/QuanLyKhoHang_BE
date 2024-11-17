@@ -85,7 +85,7 @@ const exportWithSource = catchAsync(async (req, res) => {
     });
   });
 
-  const countSlip = exportSlips.length + importSlips.length;
+  const countSlip = exportSlips.length;
 
   return res.status(httpStatus.OK).json({
     returnWithAgency,
