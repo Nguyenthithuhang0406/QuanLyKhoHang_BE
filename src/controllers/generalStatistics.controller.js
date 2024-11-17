@@ -50,14 +50,18 @@ const exportWithSource = catchAsync(async (req, res) => {
   let exportWithProvider = 0;
   let exportWithAgency = 0;
   let exportWithCustomer = 0;
+  let returnWithAgency = 0;
   let exportSlips;
+  let importSlips;
 
   if (timeStart && timeEnd) {
     const query = {};
     query.createdAt = { $gte: new Date(timeStart), $lte: new Date(timeEnd) };
     exportSlips = await ExportSlip.find(query);
+    importSlips = await ImportSlip.find(query);
   } else {
     exportSlips = await ExportSlip.find();
+    importSlips = await ImportSlip.find();
   }
 
   exportSlips.forEach((exportSlip) => {
@@ -72,9 +76,17 @@ const exportWithSource = catchAsync(async (req, res) => {
     });
   });
 
-  const countSlip = exportSlips.length;
+  //số lượng hoàn hàng với đại lý (số lượng nhập với đại lý)
+  importSlips.forEach((importSlip) => {
+    importSlip.products.forEach((product) => {
+      returnWithAgency += product.quantity;
+    });
+  });
+
+  const countSlip = exportSlips.length + importSlips.length;
 
   return res.status(httpStatus.OK).json({
+    returnWithAgency,
     countSlip,
     exportWithProvider,
     exportWithAgency,
