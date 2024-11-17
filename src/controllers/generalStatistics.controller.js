@@ -79,7 +79,9 @@ const exportWithSource = catchAsync(async (req, res) => {
   //số lượng hoàn hàng với đại lý (số lượng nhập với đại lý)
   importSlips.forEach((importSlip) => {
     importSlip.products.forEach((product) => {
-      returnWithAgency += product.quantity;
+      if (importSlip.type === "Agency") {
+        returnWithAgency += product.quantity;
+      }
     });
   });
 
