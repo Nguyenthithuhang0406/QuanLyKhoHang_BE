@@ -8,7 +8,7 @@ const createdRecordInventory = {
       "string.empty": "Inventory id cannot be an empty",
       "any.required": "Inventory id is required",
     }),
-    recordInventoryDate: joi.date().optional().messages({
+    recordInventoryDate: joi.date().optional().allow("").messages({
       "date.base": "Date must be a date",
       "date.empty": "Date cannot be an empty",
       "any.required": "Date is required",

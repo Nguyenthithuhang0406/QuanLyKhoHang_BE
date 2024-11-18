@@ -26,7 +26,7 @@ const createdRecordInventory = catchAsync(async (req, res) => {
 
   const recordInventory = new RecordInventory({
     recordInventoryCode,
-    recordInventoryDate,
+    recordInventoryDate: new Date(recordInventoryDate) || Date.now(),
     agencyId,
     purpose,
     userId,
