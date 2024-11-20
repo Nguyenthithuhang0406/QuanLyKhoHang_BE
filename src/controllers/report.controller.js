@@ -106,9 +106,14 @@ const reportExportImportInventory = catchAsync(async (req, res) => {
 
   //populate ten san pham
   for (const product of products) {
-    const productInfo = await Product.findById(product.productId);
-    product.productName = productInfo.productName;
-    product.productCode = productInfo.productCode;
+    const productInfo = await Product.findById(product.productId).populate(
+      "_id",
+      "productName productCode"
+    );
+    if (productInfo) {
+      product.productName = productInfo.productName;
+      product.productCode = productInfo.productCode;
+    }
   }
 
   //sap xep lai theo so luong nhap giam dan
