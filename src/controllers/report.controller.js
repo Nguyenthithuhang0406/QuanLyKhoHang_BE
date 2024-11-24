@@ -4,119 +4,83 @@ const catchAsync = require("../utils/catchAsync");
 const ExportSlip = require("../models/exportSlip.model");
 const Product = require("../models/product.model");
 
-// const reportImport = catchAsync(async (req, res) => {
-//   const { timeStart, timeEnd } = req.query;
-//   const query = {};
-//   if (timeStart && timeEnd) {
-//     query.createdAt = { $gte: new Date(timeStart), $lte: new Date(timeEnd) };
-//   } else {
-//     const now = new Date();
-//     //ngay bat dau la ngay dau thang cua thang hien tai
-//     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-//     //ngay ket thuc la ngay cuoi thang hien tai
-//     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-//     //dieu kien truy van
-//     query.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
-//   }
-
-//   //loc cac phieu nhap theo thoi gian
-//   const importSlips = await ImportSlip.find(query);
-//   //tinh tong so luong nhap cua tung san pham trong cac phieu nhap
-//   let mapQuantity = new Map();
-//   importSlips.forEach((importSlip) => {
-//     importSlip.products.forEach((product) => {
-//       const quantity = mapQuantity.get(product.productId) || 0;
-//       mapQuantity.set(product.productId, quantity + product.quantity);
-//     });
-//   });
-
-//   //chuyen doi map sang array
-//   const importProducts = [];
-//   for (const [productId, quantity] of mapQuantity) {
-//     importProducts.push({ productId, quantity });
-//   }
-
-//   //sap xep lai array theo so luong giam dan
-//   importProducts.sort((a, b) => b.quantity - a.quantity);
-
-//   return res.status(httpStatus.OK).json({
-//     message: "Report import successfully",
-//     code: httpStatus.OK,
-//     importProducts
-//   });
-// });
-
 const reportExportImportInventory = catchAsync(async (req, res) => {
   const { timeStart, timeEnd } = req.query;
-  const query = {};
-  if (timeStart && timeEnd) {
-    query.createdAt = { $gte: new Date(timeStart), $lte: new Date(timeEnd) };
-  } else {
-    const now = new Date();
-    //ngay bat dau la ngay dau thang cua thang hien tai
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    //ngay ket thuc la ngay cuoi thang hien tai
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    //dieu kien truy van
-    query.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
-  }
 
-  //loc cac phieu nhap theo thoi gian
-  const importSlips = await ImportSlip.find(query);
-  //tinh tong so luong nhap cua tung san pham trong cac phieu nhap
-  let mapImportQuantity = new Map();
-  importSlips.forEach((importSlip) => {
-    importSlip.products.forEach((product) => {
-      const quantity = mapImportQuantity.get(product.productId) || 0;
-      mapImportQuantity.set(product.productId, quantity + product.quantity);
+  // Thiết lập khoảng thời gian
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const query = {
+    createdAt: {
+      $gte: timeStart ? new Date(timeStart) : startOfMonth,
+      $lte: timeEnd ? new Date(timeEnd) : endOfMonth,
+    },
+  };
+
+  // Aggregation để tính số lượng nhập
+  const importData = await ImportSlip.aggregate([
+    { $match: query },
+    // $unwind để tách các sản phẩm ra thành từng dòng
+    { $unwind: "$products" },
+    // $group để nhóm các sản phẩm theo productId và tính tổng số lượng nhập
+    {
+      $group: {
+        _id: "$products.productId",
+        totalImport: { $sum: "$products.quantity" },
+      },
+    },
+  ]);
+
+  // Aggregation để tính số lượng xuất
+  const exportData = await ExportSlip.aggregate([
+    { $match: query },
+    { $unwind: "$products" },
+    {
+      $group: {
+        _id: "$products.productId",
+        totalExport: { $sum: "$products.quantity" },
+      },
+    },
+  ]);
+
+  // Ghép dữ liệu nhập/xuất thành một map
+  const productMap = new Map();
+  importData.forEach((item) => {
+    productMap.set(item._id.toString(), {
+      import: item.totalImport,
+      export: 0,
     });
   });
-
-  //loc cac phieu xuat theo thoi gian
-  const exportSlips = await ExportSlip.find(query);
-  //tinh tong so luong xuat cua tung san pham trong cac phieu xuat
-  let mapExportQuantity = new Map();
-  exportSlips.forEach((exportSlip) => {
-    exportSlip.products.forEach((product) => {
-      const quantity = mapExportQuantity.get(product.productId) || 0;
-      mapExportQuantity.set(product.productId, quantity + product.quantity);
-    });
+  exportData.forEach((item) => {
+    const product = productMap.get(item._id.toString()) || {
+      import: 0,
+      export: 0,
+    };
+    product.export = item.totalExport;
+    productMap.set(item._id.toString(), product);
   });
 
-  //tinh so luong ton kho cua tung san pham
-  const inventoryProducts = [];
-  for (const [productId, importQuantity] of mapImportQuantity) {
-    const exportQuantity = mapExportQuantity.get(productId) || 0;
-    const inventoryQuantity = importQuantity - exportQuantity;
-    inventoryProducts.push({ productId, inventoryQuantity });
-  }
+  // Lấy danh sách sản phẩm và tính số lượng tồn kho
+  const productIds = Array.from(productMap.keys());
+  const productInfo = await Product.find(
+    { _id: { $in: productIds } },
+    "productName productCode"
+  );
 
-  //gop cac san pham vao 1 mang, moi san pham gom co so luong nhap, xuat, ton kho
-  const products = [];
-  for (const product of inventoryProducts) {
-    const importQuantity = mapImportQuantity.get(product.productId);
-    const exportQuantity = mapExportQuantity.get(product.productId) || 0;
-    products.push({
-      productId: product.productId,
-      importQuantity,
-      exportQuantity,
-      inventoryQuantity: product.inventoryQuantity,
-    });
-  }
+  const products = productInfo.map((product) => {
+    const data = productMap.get(product._id.toString());
+    return {
+      productId: product._id,
+      productName: product.productName,
+      productCode: product.productCode,
+      importQuantity: data.import,
+      exportQuantity: data.export,
+      inventoryQuantity: data.import - data.export,
+    };
+  });
 
-  //populate ten san pham
-  for (const product of products) {
-    const productInfo = await Product.findById(product.productId).populate(
-      "_id",
-      "productName productCode"
-    );
-    if (productInfo) {
-      product.productName = productInfo.productName;
-      product.productCode = productInfo.productCode;
-    }
-  }
-
-  //sap xep lai theo so luong nhap giam dan
+  // Sắp xếp theo số lượng nhập giảm dần
   products.sort((a, b) => b.importQuantity - a.importQuantity);
 
   return res.status(httpStatus.OK).json({
@@ -125,6 +89,7 @@ const reportExportImportInventory = catchAsync(async (req, res) => {
     products,
   });
 });
+
 
 module.exports = {
   // reportImport,
